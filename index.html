@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanCare Attendance</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0d7fa8;
+    --teal-dark: #0a4f6e;
+    --teal-deeper: #062837;
+    --teal-light: #1abedc;
+    --cyan: #5de8ff;
+    --white: #ffffff;
+    --off-white: #f0f7fa;
+    --text: #1a2e38;
+    --text-muted: #5a7a8a;
+    --border: #cce6f0;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --late: #8b5cf6;
+    --sick: #f97316;
+    --nvp: #06b6d4;
+    --comment: #64748b;
+    --card: #ffffff;
+    --shadow: 0 8px 32px rgba(10,79,110,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Sora', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+
+  .topnav {
+    background: linear-gradient(135deg, var(--teal-deeper), var(--teal-dark));
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(6,40,55,0.3);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; }
+  .nav-logo { width: 36px; height: 36px; background: var(--teal-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: var(--teal-deeper); }
+  .nav-title { color: white; font-size: 15px; font-weight: 700; }
+  .nav-subtitle { color: rgba(255,255,255,0.5); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+  .nav-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 12px; }
+  .nav-tab { padding: 7px 14px; border-radius: 9px; border: none; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; transition: all 0.2s; color: rgba(255,255,255,0.6); background: transparent; }
+  .nav-tab.active { background: var(--teal-light); color: var(--teal-deeper); box-shadow: 0 2px 8px rgba(26,190,220,0.4); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* FORM */
+  .form-container { max-width: 580px; margin: 0 auto; padding: 24px 16px 60px; }
+  .form-header { text-align: center; margin-bottom: 24px; animation: fadeUp 0.5s ease both; }
+  .form-header h1 { font-size: 21px; font-weight: 800; color: var(--teal-dark); margin-bottom: 4px; }
+  .form-header p { color: var(--text-muted); font-size: 13px; }
+  .date-badge { display: inline-block; background: var(--teal-dark); color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 14px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 1px; }
+
+  .card { background: var(--card); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); margin-bottom: 16px; border: 1.5px solid var(--border); animation: fadeUp 0.5s ease both; }
+  .card-title { font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title::before { content: ''; width: 3px; height: 16px; background: var(--teal-light); border-radius: 2px; }
+
+  label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  input[type="text"], select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text); background: var(--off-white); transition: border 0.2s, box-shadow 0.2s; outline: none; margin-bottom: 14px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--teal-light); box-shadow: 0 0 0 3px rgba(26,190,220,0.15); background: white; }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* Zone tabs */
+  .zone-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .zone-tab { padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 20px; background: var(--off-white); color: var(--text-muted); font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .zone-tab:hover { border-color: var(--teal-light); color: var(--teal); }
+  .zone-tab.active { background: var(--teal-dark); color: white; border-color: var(--teal-dark); }
+
+  /* Worker selector */
+  .worker-search { position: relative; margin-bottom: 10px; }
+  .worker-search input { margin-bottom: 0; padding-right: 40px; }
+  .worker-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid var(--teal-light); border-radius: 12px; box-shadow: 0 8px 24px rgba(10,79,110,0.15); z-index: 50; max-height: 220px; overflow-y: auto; display: none; }
+  .worker-dropdown.open { display: block; }
+  .worker-option { padding: 10px 16px; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; border-bottom: 1px solid var(--border); }
+  .worker-option:last-child { border-bottom: none; }
+  .worker-option:hover { background: var(--off-white); }
+  .worker-option .zone-tag { font-size: 10px; background: rgba(26,190,220,0.12); color: var(--teal); padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+
+  /* Exception entries */
+  .exceptions-list { display: flex; flex-direction: column; gap: 12px; }
+  .exception-entry { background: var(--off-white); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; position: relative; animation: fadeUp 0.3s ease both; }
+  .exception-entry.status-absent { border-left: 4px solid var(--danger); }
+  .exception-entry.status-sick { border-left: 4px solid var(--sick); }
+  .exception-entry.status-nvp { border-left: 4px solid var(--nvp); }
+  .exception-entry.status-halfday { border-left: 4px solid var(--warning); }
+  .exception-entry.status-late { border-left: 4px solid var(--late); }
+  .exception-entry.status-comment { border-left: 4px solid var(--comment); }
+  .exception-entry.status-replacement { border-left: 4px solid var(--success); }
+
+  .exception-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .worker-name-display { font-weight: 700; font-size: 14px; color: var(--teal-dark); }
+  .worker-zone-display { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+  .remove-btn { background: none; border: none; cursor: pointer; color: var(--danger); font-size: 18px; padding: 2px 6px; border-radius: 6px; transition: background 0.2s; }
+  .remove-btn:hover { background: #fef2f2; }
+
+  /* Status buttons */
+  .status-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .status-btn { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 20px; background: white; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; white-space: nowrap; }
+  .status-btn:hover { border-color: var(--teal-light); }
+  .status-btn.sel-absent { border-color: var(--danger); background: #fef2f2; color: var(--danger); }
+  .status-btn.sel-sick { border-color: var(--sick); background: #fff7ed; color: var(--sick); }
+  .status-btn.sel-nvp { border-color: var(--nvp); background: #ecfeff; color: var(--nvp); }
+  .status-btn.sel-halfday { border-color: var(--warning); background: #fffbeb; color: var(--warning); }
+  .status-btn.sel-late { border-color: var(--late); background: #f5f3ff; color: var(--late); }
+  .status-btn.sel-comment { border-color: var(--comment); background: #f8fafc; color: var(--comment); }
+  .status-btn.sel-replacement { border-color: var(--success); background: #ecfdf5; color: var(--success); }
+
+  .optional-fields { display: none; }
+  .optional-fields.visible { display: block; }
+  .optional-fields label { margin-top: 8px; }
+
+  .add-exception-btn { width: 100%; padding: 13px; border: 2px dashed var(--teal-light); border-radius: 14px; background: rgba(26,190,220,0.05); color: var(--teal); font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+  .add-exception-btn:hover { background: rgba(26,190,220,0.12); }
+
+  .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--teal-dark), var(--teal)); color: white; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(13,127,168,0.35); transition: all 0.2s; margin-top: 8px; }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(13,127,168,0.45); }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--success); color: white; padding: 14px 24px; border-radius: 14px; font-weight: 600; font-size: 14px; box-shadow: 0 8px 24px rgba(16,185,129,0.4); z-index: 999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ADMIN */
+  .login-container { max-width: 400px; margin: 60px auto; padding: 16px; }
+  .login-card { background: white; border-radius: 24px; padding: 36px 32px; box-shadow: 0 20px 60px rgba(10,79,110,0.15); border: 1.5px solid var(--border); text-align: center; animation: fadeUp 0.5s ease both; }
+  .login-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--teal-dark), var(--teal-light)); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
+  .login-card h2 { font-size: 20px; font-weight: 800; color: var(--teal-dark); margin-bottom: 6px; }
+  .login-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
+  .login-error { color: var(--danger); font-size: 12px; margin-top: -10px; margin-bottom: 14px; display: none; }
+
+  .dashboard { display: none; }
+  .dashboard.active { display: block; }
+  .dash-container { max-width: 960px; margin: 0 auto; padding: 24px 16px 40px; }
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .dash-header h1 { font-size: 20px; font-weight: 800; color: var(--teal-dark); }
+  .dash-header p { color: var(--text-muted); font-size: 12px; }
+
+  .action-btns { display: flex; gap: 8px; align-items: center; }
+  .logout-btn { padding: 8px 18px; background: none; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .clear-btn { padding: 8px 16px; background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 10px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; color: var(--danger); cursor: pointer; transition: all 0.2s; }
+  .clear-btn:hover { background: #fee2e2; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 24px; }
+  .stat-card { background: white; border-radius: 14px; padding: 14px 10px; border: 1.5px solid var(--border); box-shadow: var(--shadow); text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+  .stat-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
+  .stat-card.s-absent .stat-num { color: var(--danger); }
+  .stat-card.s-sick .stat-num { color: var(--sick); }
+  .stat-card.s-nvp .stat-num { color: var(--nvp); }
+  .stat-card.s-halfday .stat-num { color: var(--warning); }
+  .stat-card.s-late .stat-num { color: var(--late); }
+  .stat-card.s-comment .stat-num { color: var(--comment); }
+  .stat-card.s-replacement .stat-num { color: var(--success); }
+
+  .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filters input, .filters select { flex: 1; min-width: 130px; margin-bottom: 0; font-size: 13px; padding: 10px 14px; }
+
+  .records-card { background: white; border-radius: 18px; border: 1.5px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .records-header { padding: 16px 22px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .records-header h3 { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
+  .record-count { font-size: 11px; color: var(--text-muted); background: var(--off-white); padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--off-white); padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--off-white); }
+  td { padding: 11px 14px; color: var(--text); vertical-align: top; }
+
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .b-absent { background: #fef2f2; color: var(--danger); }
+  .b-sick { background: #fff7ed; color: var(--sick); }
+  .b-nvp { background: #ecfeff; color: var(--nvp); }
+  .b-halfday { background: #fffbeb; color: var(--warning); }
+  .b-late { background: #f5f3ff; color: var(--late); }
+  .b-comment { background: #f8fafc; color: var(--comment); }
+  .b-replacement { background: #ecfdf5; color: var(--success); }
+
+  .notes-cell { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: 12px; }
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+  .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
+
+  /* Admin worker management */
+  .worker-mgmt { margin-top: 24px; }
+  .worker-mgmt-card { background: white; border-radius: 18px; border: 1.5px solid var(--border); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+  .worker-mgmt-header { padding: 16px 22px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .worker-mgmt-header h3 { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
+  .add-worker-form { padding: 16px 22px; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1.5px solid var(--border); }
+  .add-worker-form input, .add-worker-form select { flex: 1; min-width: 150px; margin-bottom: 0; font-size: 13px; padding: 10px 14px; }
+  .add-worker-form button { padding: 10px 20px; background: var(--teal-dark); color: white; border: none; border-radius: 12px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .workers-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .workers-table th { background: var(--off-white); padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); }
+  .workers-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .workers-table tr:last-child td { border-bottom: none; }
+  .del-worker-btn { background: none; border: none; cursor: pointer; color: var(--danger); font-size: 16px; padding: 2px 6px; border-radius: 6px; }
+  .del-worker-btn:hover { background: #fef2f2; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .nav-tab { padding: 6px 10px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="nav-brand">
+    <div class="nav-logo">CC</div>
+    <div>
+      <div class="nav-title">CleanCare BSL</div>
+      <div class="nav-subtitle">Attendance System</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('supervisor', this)">📋 Supervisor</button>
+    <button class="nav-tab" onclick="showPage('admin', this)">🔐 Admin</button>
+  </div>
+</div>
+
+<!-- ===== SUPERVISOR PAGE ===== -->
+<div id="page-supervisor" class="page active">
+  <div class="form-container">
+    <div class="form-header">
+      <div class="date-badge" id="todayDate"></div>
+      <h1>Report Exception</h1>
+      <p>Only record absent, sick, leave, late or comments</p>
+    </div>
+
+    <div class="card" style="animation-delay:0.1s">
+      <div class="card-title">Supervisor Info</div>
+      <label>Your Name</label>
+      <input type="text" id="supervisorName" placeholder="Enter your name..." />
+    </div>
+
+    <div class="card" style="animation-delay:0.2s">
+      <div class="card-title">Worker Exceptions</div>
+      <div class="exceptions-list" id="exceptionsList"></div>
+      <button class="add-exception-btn" onclick="showWorkerPicker()">+ Add Worker Exception</button>
+
+      <!-- Worker picker modal inline -->
+      <div id="workerPicker" style="display:none; margin-top:14px; background:white; border:1.5px solid var(--teal-light); border-radius:14px; padding:16px;">
+        <label>Search & Select Worker</label>
+        <div class="worker-search">
+          <input type="text" id="workerSearchInput" placeholder="Type worker name or zone..." oninput="filterWorkers()" autocomplete="off" style="margin-bottom:0" />
+        </div>
+        <!-- Zone filter tabs -->
+        <div class="zone-tabs" style="margin-top:10px;" id="zoneFilterTabs">
+          <button class="zone-tab active" onclick="filterByZone('', this)">All</button>
+          <button class="zone-tab" onclick="filterByZone('Zone 1', this)">Zone 1</button>
+          <button class="zone-tab" onclick="filterByZone('Zone 2', this)">Zone 2</button>
+          <button class="zone-tab" onclick="filterByZone('Zone 3', this)">Zone 3</button>
+          <button class="zone-tab" onclick="filterByZone('Zone 4 - WK Phoenix', this)">Zone 4</button>
+          <button class="zone-tab" onclick="filterByZone('Support Team', this)">Support</button>
+        </div>
+        <div id="workerListContainer" style="max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;margin-top:8px;"></div>
+        <button onclick="cancelPicker()" style="margin-top:10px;width:100%;padding:10px;background:var(--off-white);border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay:0.3s">
+      <div class="card-title">General Notes (Optional)</div>
+      <textarea id="generalNotes" placeholder="Any general notes for the office..."></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="submitAttendance()">✅ Submit Report</button>
+  </div>
+</div>
+
+<!-- ===== ADMIN PAGE ===== -->
+<div id="page-admin" class="page">
+  <div id="adminLogin" class="login-container">
+    <div class="login-card">
+      <div class="login-icon">🔐</div>
+      <h2>Admin Access</h2>
+      <p>Enter your password to view attendance records</p>
+      <label>Password</label>
+      <input type="text" id="adminPassword" placeholder="Enter admin password..." onkeydown="if(event.key==='Enter') adminLogin()" />
+      <p class="login-error" id="loginError">❌ Incorrect password. Try again.</p>
+      <button class="submit-btn" onclick="adminLogin()">Login →</button>
+      <p style="margin-top:16px;font-size:11px;color:var(--text-muted);">Default password: <strong>cleancare2024</strong></p>
+    </div>
+  </div>
+
+  <div id="adminDashboard" class="dashboard">
+    <div class="dash-container">
+      <div class="dash-header">
+        <div>
+          <h1>📊 Attendance Dashboard</h1>
+          <p>All exception reports from supervisors</p>
+        </div>
+        <div class="action-btns">
+          <button class="clear-btn" onclick="clearAllRecords()">🗑 Clear All</button>
+          <button class="logout-btn" onclick="adminLogout()">Logout</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card s-absent"><div class="stat-num" id="st-absent">0</div><div class="stat-label">Absent</div></div>
+        <div class="stat-card s-sick"><div class="stat-num" id="st-sick">0</div><div class="stat-label">Sick Leave</div></div>
+        <div class="stat-card s-nvp"><div class="stat-num" id="st-nvp">0</div><div class="stat-label">Local Leave</div></div>
+        <div class="stat-card s-halfday"><div class="stat-num" id="st-halfday">0</div><div class="stat-label">Half Day</div></div>
+        <div class="stat-card s-late"><div class="stat-num" id="st-late">0</div><div class="stat-label">Late</div></div>
+        <div class="stat-card s-replacement"><div class="stat-num" id="st-replacement">0</div><div class="stat-label">Replacement</div></div>
+        <div class="stat-card s-comment"><div class="stat-num" id="st-comment">0</div><div class="stat-label">Comment</div></div>
+      </div>
+
+      <div class="filters">
+        <input type="date" id="filterDate" onchange="renderTable()" />
+        <select id="filterZone" onchange="renderTable()">
+          <option value="">All Zones</option>
+          <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+          <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
+        </select>
+        <select id="filterStatus" onchange="renderTable()">
+          <option value="">All Statuses</option>
+          <option>Absent</option><option>Sick Leave</option><option>Local Leave (NVP)</option>
+          <option>Half Day</option><option>Late</option><option>Replacement/Location</option><option>Comment</option>
+        </select>
+      </div>
+
+      <div class="records-card">
+        <div class="records-header">
+          <h3>Exception Records</h3>
+          <span class="record-count" id="recordCount">0 records</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date & Time</th><th>Supervisor</th><th>Zone</th><th>Worker</th>
+              <th>Status</th><th>Replacement / Location</th><th>Notes</th>
+            </tr></thead>
+            <tbody id="recordsBody"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState">
+            <div class="emoji">📭</div>
+            <p>No exception records yet.<br>Submissions will appear here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Worker Management -->
+      <div class="worker-mgmt">
+        <div class="worker-mgmt-card">
+          <div class="worker-mgmt-header">
+            <h3>👷 Manage Worker List</h3>
+            <span class="record-count" id="workerCount">0 workers</span>
+          </div>
+          <div class="add-worker-form">
+            <input type="text" id="newWorkerName" placeholder="Worker full name..." />
+            <select id="newWorkerZone">
+              <option value="">Select Zone</option>
+              <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+              <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
+            </select>
+            <button onclick="addWorkerToList()">+ Add Worker</button>
+          </div>
+          <div class="table-wrap">
+            <table class="workers-table">
+              <thead><tr><th>#</th><th>Name</th><th>Zone</th><th>Remove</th></tr></thead>
+              <tbody id="workerMgmtBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Report submitted successfully!</div>
+
+<script>
+// ===== WORKER DATA =====
+const DEFAULT_WORKERS = [
+  // Zone 1
+  { name: "Deepak Mutty", zone: "Zone 1" },
+  { name: "Mohun Rajesh Vinay", zone: "Zone 1" },
+  { name: "Motee Marie Sundy Christina", zone: "Zone 1" },
+  { name: "Denis Marilyn", zone: "Zone 1" },
+  { name: "Stephanie Youcouable", zone: "Zone 1" },
+  { name: "Gloria Armoogum", zone: "Zone 1" },
+  { name: "Hypolite Marie Caroline (B1Y)", zone: "Zone 1" },
+  { name: "Akbur Beebee Saida", zone: "Zone 1" },
+  { name: "Sheila Calaumont", zone: "Zone 1" },
+  { name: "Marie Sandrine Kassandra", zone: "Zone 1" },
+  { name: "Baptiste Marie Corinne", zone: "Zone 1" },
+  { name: "Berard Marie Pamela Dolores", zone: "Zone 1" },
+  { name: "Sindy Solamalay", zone: "Zone 1" },
+  { name: "Jennifer Marie Joanne Gopaul", zone: "Zone 1" },
+  { name: "Joseph Marie Louise Danielle", zone: "Zone 1" },
+  { name: "Cannoo Rookwantee", zone: "Zone 1" },
+  { name: "Hema Broudanaika", zone: "Zone 1" },
+  { name: "GOPEE Marie Valeria Alzira", zone: "Zone 1" },
+  { name: "Cangy Marie Rose Stella", zone: "Zone 1" },
+  { name: "Gabriel Marie Dorine", zone: "Zone 1" },
+  { name: "Augushin Isabelle Flora", zone: "Zone 1" },
+  { name: "Dookhit Khelawati (Vasou)", zone: "Zone 1" },
+  // Zone 2
+  { name: "Yvelette Gaiquis", zone: "Zone 2" },
+  { name: "Chouchoux Bryan", zone: "Zone 2" },
+  { name: "Nohur Sobha Devi", zone: "Zone 2" },
+  { name: "Joselita Felicite", zone: "Zone 2" },
+  { name: "Jonckeer France Gerard", zone: "Zone 2" },
+  { name: "Preeti Cheeneebans", zone: "Zone 2" },
+  { name: "Thungavelu Tanesree (B1Y)", zone: "Zone 2" },
+  { name: "Pamela Augustin", zone: "Zone 2" },
+  { name: "Kistnen Beebee Rookian", zone: "Zone 2" },
+  { name: "Chaya Buldan", zone: "Zone 2" },
+  { name: "Imrith Soobhawtee (Reshma)", zone: "Zone 2" },
+  { name: "Sugitte Marianne-Gourdin Marie (B1Y)", zone: "Zone 2" },
+  { name: "Marie Louise Prospere (B1Y)", zone: "Zone 2" },
+  { name: "Cossil Padaruth FREELANCE", zone: "Zone 2" },
+  { name: "Anwar Mahadawoo", zone: "Zone 2" },
+  { name: "Anique Adolphe", zone: "Zone 2" },
+  // Zone 3
+  { name: "Mala Sinha Sewnarain", zone: "Zone 3" },
+  { name: "Hurjoon Rita", zone: "Zone 3" },
+  { name: "Marjolin Marie Charone Pascale Toussaint", zone: "Zone 3" },
+  { name: "Azhar Issop", zone: "Zone 3" },
+  { name: "Charlen Benoit", zone: "Zone 3" },
+  { name: "Marie Christine Tickfine", zone: "Zone 3" },
+  { name: "Tickfine Roseline", zone: "Zone 3" },
+  { name: "Mirella Arnold", zone: "Zone 3" },
+  { name: "Joannie Jasmin", zone: "Zone 3" },
+  { name: "Oojageer Maya Devi", zone: "Zone 3" },
+  { name: "Cite Rolande Marie Luce", zone: "Zone 3" },
+  { name: "Santa Vinoba Beebakhie (Sunil)", zone: "Zone 3" },
+  // Zone 4
+  { name: "Rooksanah Soobratee", zone: "Zone 4 - WK Phoenix" },
+  { name: "Marie Sheila Sabrina Jolicoeur", zone: "Zone 4 - WK Phoenix" },
+  { name: "Omphal Marie Dominique (B1Y)", zone: "Zone 4 - WK Phoenix" },
+  // Support Team
+  { name: "Sagim Moonan", zone: "Support Team" },
+  { name: "Jayshree Valaydon Chengebroyen", zone: "Support Team" },
+  { name: "Auckloo Pritish Sharma", zone: "Support Team" },
+  { name: "Bhavanee Devi Garibdass (B1Y)", zone: "Support Team" },
+  { name: "Mamitiana Raharinjanahary (B1Y)", zone: "Support Team" },
+];
+
+// ===== STORAGE =====
+async function saveWorkers(workers) {
+  try { await window.storage.set('cc_workers', JSON.stringify(workers)); } catch(e) { window._workers = workers; }
+}
+async function loadWorkers() {
+  try {
+    const r = await window.storage.get('cc_workers');
+    return r ? JSON.parse(r.value) : DEFAULT_WORKERS;
+  } catch(e) { return window._workers || DEFAULT_WORKERS; }
+}
+async function saveRecords(records) {
+  try { await window.storage.set('cc_records', JSON.stringify(records)); } catch(e) { window._records = records; }
+}
+async function loadRecords() {
+  try {
+    const r = await window.storage.get('cc_records');
+    return r ? JSON.parse(r.value) : [];
+  } catch(e) { return window._records || []; }
+}
+
+// ===== STATE =====
+let currentWorkers = [];
+let currentZoneFilter = '';
+let exceptionCount = 0;
+const ADMIN_PASS = 'cleancare2024';
+
+async function init() {
+  currentWorkers = await loadWorkers();
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+}
+init();
+
+// ===== PAGE NAV =====
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  btn.classList.add('active');
+  if (page === 'admin') renderDashboard();
+}
+
+// ===== WORKER PICKER =====
+function showWorkerPicker() {
+  document.getElementById('workerPicker').style.display = 'block';
+  document.getElementById('workerSearchInput').value = '';
+  currentZoneFilter = '';
+  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.zone-tab').classList.add('active');
+  renderWorkerList();
+  document.getElementById('workerSearchInput').focus();
+}
+
+function cancelPicker() {
+  document.getElementById('workerPicker').style.display = 'none';
+}
+
+function filterByZone(zone, el) {
+  currentZoneFilter = zone;
+  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderWorkerList();
+}
+
+function filterWorkers() { renderWorkerList(); }
+
+function renderWorkerList() {
+  const search = document.getElementById('workerSearchInput').value.toLowerCase();
+  const container = document.getElementById('workerListContainer');
+  const filtered = currentWorkers.filter(w => {
+    const matchZone = !currentZoneFilter || w.zone === currentZoneFilter;
+    const matchSearch = !search || w.name.toLowerCase().includes(search) || w.zone.toLowerCase().includes(search);
+    return matchZone && matchSearch;
+  });
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">No workers found</div>';
+    return;
+  }
+  container.innerHTML = filtered.map(w => `
+    <div class="worker-option" onclick="selectWorker('${w.name.replace(/'/g,"\\'")}','${w.zone.replace(/'/g,"\\'")}')">
+      <span>${w.name}</span>
+      <span class="zone-tag">${w.zone}</span>
+    </div>
+  `).join('');
+}
+
+function selectWorker(name, zone) {
+  cancelPicker();
+  addExceptionEntry(name, zone);
+}
+
+// ===== EXCEPTION ENTRIES =====
+function addExceptionEntry(name, zone) {
+  exceptionCount++;
+  const id = exceptionCount;
+  const div = document.createElement('div');
+  div.className = 'exception-entry';
+  div.id = 'exc-' + id;
+  div.innerHTML = `
+    <div class="exception-header">
+      <div>
+        <div class="worker-name-display">${name}</div>
+        <div class="worker-zone-display">${zone}</div>
+      </div>
+      <button class="remove-btn" onclick="removeException(${id})">✕</button>
+    </div>
+    <div class="status-grid">
+      <button class="status-btn" onclick="selectExcStatus(${id},'Absent')">❌ Absent</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Sick Leave')">🤒 Sick Leave</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Local Leave (NVP)')">🏖 Local Leave (NVP)</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Half Day')">🌓 Half Day</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Late')">🕐 Late</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Replacement/Location')">🔄 Replacement / Location</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Comment')">💬 Comment</button>
+    </div>
+    <input type="hidden" id="estatus-${id}" value="" data-name="${name}" data-zone="${zone}" />
+    <div class="optional-fields" id="optfields-${id}">
+      <label>Replacement Name / Working Location <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <input type="text" id="erepl-${id}" placeholder="e.g. replaced by Marie, or working at Bagatelle..." />
+      <label>Note <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <input type="text" id="enote-${id}" placeholder="Any additional note..." />
+    </div>
+  `;
+  document.getElementById('exceptionsList').appendChild(div);
+}
+
+function removeException(id) {
+  const el = document.getElementById('exc-' + id);
+  if (el) el.remove();
+}
+
+const statusClassMap = {
+  'Absent': 'absent', 'Sick Leave': 'sick', 'Local Leave (NVP)': 'nvp',
+  'Half Day': 'halfday', 'Late': 'late', 'Replacement/Location': 'replacement', 'Comment': 'comment'
+};
+
+function selectExcStatus(id, status) {
+  document.getElementById('estatus-' + id).value = status;
+  const entry = document.getElementById('exc-' + id);
+  entry.className = 'exception-entry status-' + (statusClassMap[status] || 'comment');
+  // reset buttons
+  entry.querySelectorAll('.status-btn').forEach(b => b.className = 'status-btn');
+  // highlight selected
+  entry.querySelectorAll('.status-btn').forEach(b => {
+    if (b.textContent.includes(status.split(' ')[0]) || b.onclick?.toString().includes(`'${status}'`)) {
+      b.classList.add('sel-' + (statusClassMap[status] || 'comment'));
+    }
+  });
+  // fix: highlight by matching onclick
+  entry.querySelectorAll('.status-btn').forEach(b => {
+    const match = b.getAttribute('onclick')?.includes(`'${status}'`);
+    if (match) b.classList.add('sel-' + (statusClassMap[status] || 'comment'));
+    else b.className = 'status-btn';
+  });
+  document.getElementById('optfields-' + id).classList.add('visible');
+}
+
+// ===== SUBMIT =====
+async function submitAttendance() {
+  const supervisor = document.getElementById('supervisorName').value.trim();
+  if (!supervisor) { alert('Please enter your name.'); return; }
+
+  const entries = document.querySelectorAll('.exception-entry');
+  if (entries.length === 0) { alert('Please add at least one worker exception.'); return; }
+
+  const today = new Date().toISOString().split('T')[0];
+  const time = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+  const records = await loadRecords();
+  let hasError = false;
+
+  for (const entry of entries) {
+    const idMatch = entry.id.match(/exc-(\d+)/);
+    if (!idMatch) continue;
+    const id = idMatch[1];
+    const statusEl = document.getElementById('estatus-' + id);
+    if (!statusEl) continue;
+    const status = statusEl.value;
+    const name = statusEl.dataset.name;
+    const zone = statusEl.dataset.zone;
+    if (!status) { alert(`Please select a status for ${name}.`); hasError = true; break; }
+
+    records.push({
+      date: today,
+      time,
+      supervisor,
+      zone,
+      workerName: name,
+      status,
+      replacement: document.getElementById('erepl-' + id)?.value.trim() || '',
+      notes: document.getElementById('enote-' + id)?.value.trim() || '',
+      generalNotes: document.getElementById('generalNotes').value.trim()
+    });
+  }
+
+  if (hasError) return;
+  await saveRecords(records);
+
+  // Reset
+  document.getElementById('supervisorName').value = '';
+  document.getElementById('generalNotes').value = '';
+  document.getElementById('exceptionsList').innerHTML = '';
+  exceptionCount = 0;
+
+  showToast();
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== ADMIN =====
+function adminLogin() {
+  const pw = document.getElementById('adminPassword').value;
+  if (pw === ADMIN_PASS) {
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminDashboard').classList.add('active');
+    renderDashboard();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('adminPassword').value = '';
+  }
+}
+
+function adminLogout() {
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminDashboard').classList.remove('active');
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+async function renderDashboard() {
+  if (!document.getElementById('adminDashboard').classList.contains('active')) return;
+  currentWorkers = await loadWorkers();
+  renderTable();
+  renderWorkerMgmt();
+}
+
+async function renderTable() {
+  const records = await loadRecords();
+  const fd = document.getElementById('filterDate')?.value || '';
+  const fz = document.getElementById('filterZone')?.value || '';
+  const fs = document.getElementById('filterStatus')?.value || '';
+
+  let filtered = records.filter(r => {
+    if (fd && r.date !== fd) return false;
+    if (fz && r.zone !== fz) return false;
+    if (fs && r.status !== fs) return false;
+    return true;
+  }).sort((a,b) => b.date.localeCompare(a.date) || b.time?.localeCompare(a.time || '') || 0);
+
+  // Stats from ALL records
+  const stMap = { 'Absent':'absent','Sick Leave':'sick','Local Leave (NVP)':'nvp','Half Day':'halfday','Late':'late','Replacement/Location':'replacement','Comment':'comment' };
+  Object.keys(stMap).forEach(s => {
+    const el = document.getElementById('st-' + stMap[s]);
+    if (el) el.textContent = records.filter(r => r.status === s).length;
+  });
+
+  document.getElementById('recordCount').textContent = `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('recordsBody');
+  const empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  const badgeClass = { 'Absent':'b-absent','Sick Leave':'b-sick','Local Leave (NVP)':'b-nvp','Half Day':'b-halfday','Late':'b-late','Replacement/Location':'b-replacement','Comment':'b-comment' };
+
+  tbody.innerHTML = filtered.map(r => `
+    <tr>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${r.date}</span><br><span style="font-size:10px;color:var(--text-muted)">${r.time || ''}</span></td>
+      <td style="font-weight:600">${r.supervisor}</td>
+      <td style="font-size:12px">${r.zone}</td>
+      <td style="font-weight:600">${r.workerName}</td>
+      <td><span class="status-badge ${badgeClass[r.status] || ''}">${r.status}</span></td>
+      <td style="color:var(--text-muted);font-size:12px">${r.replacement || '—'}</td>
+      <td class="notes-cell" title="${r.notes || r.generalNotes || ''}">${r.notes || r.generalNotes || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+async function clearAllRecords() {
+  if (!confirm('Clear ALL attendance records? This cannot be undone.')) return;
+  await saveRecords([]);
+  renderTable();
+}
+
+// Worker management
+async function renderWorkerMgmt() {
+  const workers = await loadWorkers();
+  document.getElementById('workerCount').textContent = `${workers.length} workers`;
+  const tbody = document.getElementById('workerMgmtBody');
+  tbody.innerHTML = workers.map((w, i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:12px">${i+1}</td>
+      <td style="font-weight:600">${w.name}</td>
+      <td><span class="zone-tag" style="font-size:10px;background:rgba(26,190,220,0.12);color:var(--teal);padding:2px 8px;border-radius:10px;font-weight:600;">${w.zone}</span></td>
+      <td><button class="del-worker-btn" onclick="deleteWorker(${i})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+async function addWorkerToList() {
+  const name = document.getElementById('newWorkerName').value.trim();
+  const zone = document.getElementById('newWorkerZone').value;
+  if (!name || !zone) { alert('Please enter a name and select a zone.'); return; }
+  const workers = await loadWorkers();
+  workers.push({ name, zone });
+  await saveWorkers(workers);
+  currentWorkers = workers;
+  document.getElementById('newWorkerName').value = '';
+  document.getElementById('newWorkerZone').value = '';
+  renderWorkerMgmt();
+}
+
+async function deleteWorker(index) {
+  if (!confirm('Remove this worker from the list?')) return;
+  const workers = await loadWorkers();
+  workers.splice(index, 1);
+  await saveWorkers(workers);
+  currentWorkers = workers;
+  renderWorkerMgmt();
+}
+</script>
+</body>
+</html>
