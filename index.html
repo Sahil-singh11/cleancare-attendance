@@ -440,24 +440,51 @@ const DEFAULT_WORKERS = [
   { name: "Mamitiana Raharinjanahary (B1Y)", zone: "Support Team" },
 ];
 
-// ===== STORAGE =====
-async function saveWorkers(workers) {
-  try { await window.storage.set('cc_workers', JSON.stringify(workers)); } catch(e) { window._workers = workers; }
-}
-async function loadWorkers() {
+// ===== GOOGLE SHEETS API =====
+const SHEET_API = 'https://script.google.com/macros/s/AKfycbzVYW8Rb3ov4Y5d3_XfNRENm4-_MZUD8b4S79H6T86KOH5_BMwWnsxCHFDFbwf4Izhesg/exec';
+
+async function sendToSheet(record) {
   try {
-    const r = await window.storage.get('cc_workers');
-    return r ? JSON.parse(r.value) : DEFAULT_WORKERS;
+    await fetch(SHEET_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'addRecord', ...record })
+    });
+    return true;
+  } catch(e) { console.error('Sheet error:', e); return false; }
+}
+
+async function fetchFromSheet() {
+  try {
+    const res = await fetch(SHEET_API + '?action=getRecords');
+    const data = await res.json();
+    if (data.success) return data.records || [];
+    return [];
+  } catch(e) { console.error('Fetch error:', e); return []; }
+}
+
+async function clearSheet() {
+  try {
+    await fetch(SHEET_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'clearRecords' })
+    });
+    return true;
+  } catch(e) { return false; }
+}
+
+// ===== LOCAL WORKER STORAGE =====
+function saveWorkers(workers) {
+  try { localStorage.setItem('cc_workers', JSON.stringify(workers)); } catch(e) { window._workers = workers; }
+}
+function loadWorkers() {
+  try {
+    const r = localStorage.getItem('cc_workers');
+    return r ? JSON.parse(r) : DEFAULT_WORKERS;
   } catch(e) { return window._workers || DEFAULT_WORKERS; }
-}
-async function saveRecords(records) {
-  try { await window.storage.set('cc_records', JSON.stringify(records)); } catch(e) { window._records = records; }
-}
-async function loadRecords() {
-  try {
-    const r = await window.storage.get('cc_records');
-    return r ? JSON.parse(r.value) : [];
-  } catch(e) { return window._records || []; }
 }
 
 // ===== STATE =====
@@ -467,7 +494,7 @@ let exceptionCount = 0;
 const ADMIN_PASS = 'cleancare2024';
 
 async function init() {
-  currentWorkers = await loadWorkers();
+  currentWorkers = loadWorkers();
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
 }
 init();
@@ -607,8 +634,8 @@ async function submitAttendance() {
   const today = new Date().toISOString().split('T')[0];
   const time = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
 
-  const records = await loadRecords();
   let hasError = false;
+  const recordsToSend = [];
 
   for (const entry of entries) {
     const idMatch = entry.id.match(/exc-(\d+)/);
@@ -621,7 +648,7 @@ async function submitAttendance() {
     const zone = statusEl.dataset.zone;
     if (!status) { alert(`Please select a status for ${name}.`); hasError = true; break; }
 
-    records.push({
+    recordsToSend.push({
       date: today,
       time,
       supervisor,
@@ -635,13 +662,24 @@ async function submitAttendance() {
   }
 
   if (hasError) return;
-  await saveRecords(records);
+
+  // Show loading state
+  const submitBtn = document.querySelector('.submit-btn');
+  submitBtn.textContent = '⏳ Submitting...';
+  submitBtn.disabled = true;
+
+  // Send each record to Google Sheets
+  for (const record of recordsToSend) {
+    await sendToSheet(record);
+  }
 
   // Reset
   document.getElementById('supervisorName').value = '';
   document.getElementById('generalNotes').value = '';
   document.getElementById('exceptionsList').innerHTML = '';
   exceptionCount = 0;
+  submitBtn.textContent = '✅ Submit Report';
+  submitBtn.disabled = false;
 
   showToast();
 }
@@ -674,13 +712,16 @@ function adminLogout() {
 
 async function renderDashboard() {
   if (!document.getElementById('adminDashboard').classList.contains('active')) return;
-  currentWorkers = await loadWorkers();
+  currentWorkers = loadWorkers();
   renderTable();
   renderWorkerMgmt();
 }
 
 async function renderTable() {
-  const records = await loadRecords();
+  // Show loading
+  document.getElementById('recordsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading records...</td></tr>';
+  document.getElementById('emptyState').style.display = 'none';
+  const records = await fetchFromSheet();
   const fd = document.getElementById('filterDate')?.value || '';
   const fz = document.getElementById('filterZone')?.value || '';
   const fs = document.getElementById('filterStatus')?.value || '';
@@ -723,13 +764,13 @@ async function renderTable() {
 
 async function clearAllRecords() {
   if (!confirm('Clear ALL attendance records? This cannot be undone.')) return;
-  await saveRecords([]);
+  await clearSheet();
   renderTable();
 }
 
 // Worker management
 async function renderWorkerMgmt() {
-  const workers = await loadWorkers();
+  const workers = loadWorkers();
   document.getElementById('workerCount').textContent = `${workers.length} workers`;
   const tbody = document.getElementById('workerMgmtBody');
   tbody.innerHTML = workers.map((w, i) => `
@@ -746,9 +787,9 @@ async function addWorkerToList() {
   const name = document.getElementById('newWorkerName').value.trim();
   const zone = document.getElementById('newWorkerZone').value;
   if (!name || !zone) { alert('Please enter a name and select a zone.'); return; }
-  const workers = await loadWorkers();
+  const workers = loadWorkers();
   workers.push({ name, zone });
-  await saveWorkers(workers);
+  saveWorkers(workers);
   currentWorkers = workers;
   document.getElementById('newWorkerName').value = '';
   document.getElementById('newWorkerZone').value = '';
@@ -757,9 +798,9 @@ async function addWorkerToList() {
 
 async function deleteWorker(index) {
   if (!confirm('Remove this worker from the list?')) return;
-  const workers = await loadWorkers();
+  const workers = loadWorkers();
   workers.splice(index, 1);
-  await saveWorkers(workers);
+  saveWorkers(workers);
   currentWorkers = workers;
   renderWorkerMgmt();
 }
