@@ -895,6 +895,27 @@ function previewPhoto(){
   }
 }
 
+// Compress image to max 800px wide and 0.7 quality JPEG
+function compressPhoto(file){
+  return new Promise((resolve)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxW=800;
+        let w=img.width,h=img.height;
+        if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.7));
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 async function submitIncident(){
   if(!loggedInSupervisor){alert('Please login first.');return;}
   const zone=document.getElementById('incidentZone').value;
@@ -908,7 +929,11 @@ async function submitIncident(){
   let photoData='';
   const photoFile=document.getElementById('incidentPhoto').files[0];
   if(photoFile){
-    photoData=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(photoFile);});
+    try{
+      photoData=await compressPhoto(photoFile);
+    }catch(e){
+      photoData='';
+    }
   }
   const btn=document.getElementById('incidentSubmitBtn');
   btn.textContent='⏳ Submitting...';btn.disabled=true;
