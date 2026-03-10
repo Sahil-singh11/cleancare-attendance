@@ -171,6 +171,14 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
 .empty-state .emoji{font-size:40px;margin-bottom:12px;}
 .clickable-row{cursor:pointer;}
 .clickable-row:hover td{background:rgba(26,190,220,0.06);}
+.photo-link{color:var(--teal);font-weight:600;font-size:12px;text-decoration:none;}
+.photo-link:hover{text-decoration:underline;}
+.incident-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.incident-detail-item{background:var(--off-white);border-radius:12px;padding:12px 14px;}
+.incident-detail-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+.incident-detail-value{font-size:14px;color:var(--text);font-weight:600;}
+.incident-detail-full{background:var(--off-white);border-radius:12px;padding:14px;margin-bottom:12px;}
+.incident-detail-full p{font-size:14px;color:var(--text);line-height:1.6;}
 
 /* WORKER HISTORY MODAL */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,40,55,0.6);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;}
@@ -452,7 +460,7 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date & Time</th><th>Supervisor</th><th>Zone</th><th>Type</th><th>Severity</th><th>Description</th><th>Action Taken</th><th>Photo</th></tr></thead>
+              <thead><tr><th>Date & Time</th><th>Supervisor</th><th>Zone</th><th>Type</th><th>Severity</th><th>Description</th><th>Details</th></tr></thead>
               <tbody id="incidentsBody"></tbody>
             </table>
             <div class="empty-state" id="incidentEmpty"><div class="emoji">✅</div><p>No incidents reported.</p></div>
@@ -598,14 +606,14 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
   </div>
 </div>
 
-<!-- PHOTO MODAL -->
-<div class="modal-overlay" id="photoModal">
-  <div class="modal photo-modal" style="max-width:500px;">
+<!-- INCIDENT DETAIL MODAL -->
+<div class="modal-overlay" id="incidentDetailModal">
+  <div class="modal" style="max-width:640px;">
     <div class="modal-header">
-      <h2>Incident Photo</h2>
-      <button class="modal-close" onclick="closeModal('photoModal')">✕</button>
+      <h2>🚨 Incident Detail</h2>
+      <button class="modal-close" onclick="closeModal('incidentDetailModal')">✕</button>
     </div>
-    <img id="photoModalImg" src="" style="max-width:100%;border-radius:12px;" />
+    <div id="incidentDetailContent"></div>
   </div>
 </div>
 
@@ -1008,18 +1016,66 @@ async function renderAttendanceTable(){
 }
 
 // ===== INCIDENTS TABLE =====
+let allIncidents = [];
 async function renderIncidentsTable(){
-  document.getElementById('incidentsBody').innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading...</td></tr>';
+  document.getElementById('incidentsBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading...</td></tr>';
   document.getElementById('incidentEmpty').style.display='none';
-  const incidents=await fetchFromSheet('getIncidents');
-  document.getElementById('incidentCount').textContent=`${incidents.length} incident${incidents.length!==1?'s':''}`;
+  allIncidents=await fetchFromSheet('getIncidents');
+  document.getElementById('incidentCount').textContent=`${allIncidents.length} incident${allIncidents.length!==1?'s':''}`;
   const tbody=document.getElementById('incidentsBody');
-  if(!incidents.length){tbody.innerHTML='';document.getElementById('incidentEmpty').style.display='block';return;}
+  if(!allIncidents.length){tbody.innerHTML='';document.getElementById('incidentEmpty').style.display='block';return;}
   const sc={'Low':'b-low','Medium':'b-medium','High':'b-high'};
-  tbody.innerHTML=incidents.map(i=>`<tr><td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmtDate(i.date)}</span><br><span style="font-size:10px;color:var(--text-muted)">${i.time||''}</span></td><td style="font-weight:600">${i.supervisor||''}</td><td style="font-size:12px">${i.zone||''}</td><td style="font-weight:600">${i.type||''}</td><td><span class="status-badge ${sc[i.severity]||''}">${i.severity||''}</span></td><td class="notes-cell" title="${i.description||''}">${i.description||'—'}</td><td style="font-size:12px;color:var(--text-muted)">${i.actionTaken||'—'}</td><td>${i.photoLink?`<a href="${i.photoLink}" target="_blank" style="color:var(--teal);font-weight:600;font-size:12px;text-decoration:none;">📷 View</a>`:'—'}</td></tr>`).join('');
+  tbody.innerHTML=allIncidents.map((i,idx)=>`<tr class="clickable-row" onclick="openIncidentDetail(${idx})" title="Click to view full details">
+    <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmtDate(i.date)}</span><br><span style="font-size:10px;color:var(--text-muted)">${i.time||''}</span></td>
+    <td style="font-weight:600">${i.supervisor||''}</td>
+    <td style="font-size:12px">${i.zone||''}</td>
+    <td style="font-weight:600">${i.type||''}</td>
+    <td><span class="status-badge ${sc[i.severity]||''}">${i.severity||''}</span></td>
+    <td style="font-size:12px;color:var(--text-muted);max-width:180px;">${(i.description||'—').substring(0,60)}${(i.description||'').length>60?'…':''}</td>
+    <td style="font-size:11px;color:var(--teal);font-weight:600;">👁 View Details</td>
+  </tr>`).join('');
 }
 
-function viewPhoto(src){document.getElementById('photoModalImg').src=src;document.getElementById('photoModal').classList.add('open');}
+function openIncidentDetail(idx){
+  const i=allIncidents[idx];
+  const sc={'Low':'b-low','Medium':'b-medium','High':'b-high'};
+  const sevColor={'Low':'var(--success)','Medium':'var(--warning)','High':'var(--danger)'};
+  document.getElementById('incidentDetailContent').innerHTML=`
+    <div class="incident-detail-grid">
+      <div class="incident-detail-item">
+        <div class="incident-detail-label">Date & Time</div>
+        <div class="incident-detail-value">${fmtDate(i.date)} ${i.time?'at '+i.time:''}</div>
+      </div>
+      <div class="incident-detail-item">
+        <div class="incident-detail-label">Supervisor</div>
+        <div class="incident-detail-value">${i.supervisor||'—'}</div>
+      </div>
+      <div class="incident-detail-item">
+        <div class="incident-detail-label">Zone</div>
+        <div class="incident-detail-value">${i.zone||'—'}</div>
+      </div>
+      <div class="incident-detail-item">
+        <div class="incident-detail-label">Type</div>
+        <div class="incident-detail-value">${i.type||'—'}</div>
+      </div>
+    </div>
+    <div class="incident-detail-item" style="margin-bottom:12px;text-align:center;">
+      <div class="incident-detail-label">Severity</div>
+      <div style="margin-top:6px;"><span class="status-badge ${sc[i.severity]||''}" style="font-size:14px;padding:6px 18px;">${i.severity||'—'}</span></div>
+    </div>
+    <div class="incident-detail-full">
+      <div class="incident-detail-label" style="margin-bottom:8px;">📝 Description</div>
+      <p>${i.description||'No description provided.'}</p>
+    </div>
+    <div class="incident-detail-full">
+      <div class="incident-detail-label" style="margin-bottom:8px;">✅ Action Taken</div>
+      <p>${i.actionTaken||'No action recorded.'}</p>
+    </div>
+    ${i.photoLink?`<div style="text-align:center;margin-top:8px;">
+      <a href="${i.photoLink}" target="_blank" style="display:inline-block;background:var(--teal-dark);color:white;padding:12px 28px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;text-decoration:none;">📷 View Photo on Google Drive</a>
+    </div>`:`<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">📷 No photo attached</div>`}`;
+  document.getElementById('incidentDetailModal').classList.add('open');
+}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 // ===== CLEAR =====
