@@ -3,210 +3,251 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CleanCare Attendance</title>
+<title>CleanCare BSL — Attendance System</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --teal: #0d7fa8;
-    --teal-dark: #0a4f6e;
-    --teal-deeper: #062837;
-    --teal-light: #1abedc;
-    --cyan: #5de8ff;
-    --white: #ffffff;
-    --off-white: #f0f7fa;
-    --text: #1a2e38;
-    --text-muted: #5a7a8a;
-    --border: #cce6f0;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --late: #8b5cf6;
-    --sick: #f97316;
-    --nvp: #06b6d4;
-    --comment: #64748b;
-    --card: #ffffff;
-    --shadow: 0 8px 32px rgba(10,79,110,0.12);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Sora', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+:root {
+  --teal:#0d7fa8;--teal-dark:#0a4f6e;--teal-deeper:#062837;--teal-light:#1abedc;
+  --cyan:#5de8ff;--off-white:#f0f7fa;--text:#1a2e38;--text-muted:#5a7a8a;
+  --border:#cce6f0;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;
+  --late:#8b5cf6;--sick:#f97316;--nvp:#06b6d4;--comment:#64748b;
+  --incident:#dc2626;--shadow:0 8px 32px rgba(10,79,110,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--off-white);color:var(--text);min-height:100vh;}
 
-  .topnav {
-    background: linear-gradient(135deg, var(--teal-deeper), var(--teal-dark));
-    padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 4px 20px rgba(6,40,55,0.3);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .nav-brand { display: flex; align-items: center; gap: 10px; }
-  .nav-logo { width: 36px; height: 36px; background: var(--teal-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: var(--teal-deeper); }
-  .nav-title { color: white; font-size: 15px; font-weight: 700; }
-  .nav-subtitle { color: rgba(255,255,255,0.5); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
-  .nav-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 12px; }
-  .nav-tab { padding: 7px 14px; border-radius: 9px; border: none; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; transition: all 0.2s; color: rgba(255,255,255,0.6); background: transparent; }
-  .nav-tab.active { background: var(--teal-light); color: var(--teal-deeper); box-shadow: 0 2px 8px rgba(26,190,220,0.4); }
+/* NAV */
+.topnav{background:linear-gradient(135deg,var(--teal-deeper),var(--teal-dark));padding:12px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(6,40,55,0.3);position:sticky;top:0;z-index:200;}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:36px;height:36px;background:var(--teal-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--teal-deeper);}
+.nav-title{color:white;font-size:15px;font-weight:700;}
+.nav-subtitle{color:rgba(255,255,255,0.5);font-size:10px;letter-spacing:1px;text-transform:uppercase;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.nav-user{color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;}
+.nav-tabs{display:flex;gap:4px;background:rgba(255,255,255,0.08);padding:4px;border-radius:12px;}
+.nav-tab{padding:6px 12px;border-radius:9px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:11px;font-weight:600;transition:all 0.2s;color:rgba(255,255,255,0.6);background:transparent;}
+.nav-tab.active{background:var(--teal-light);color:var(--teal-deeper);box-shadow:0 2px 8px rgba(26,190,220,0.4);}
 
-  .page { display: none; }
-  .page.active { display: block; }
+/* PAGES */
+.page{display:none;}.page.active{display:block;}
 
-  /* FORM */
-  .form-container { max-width: 580px; margin: 0 auto; padding: 24px 16px 60px; }
-  .form-header { text-align: center; margin-bottom: 24px; animation: fadeUp 0.5s ease both; }
-  .form-header h1 { font-size: 21px; font-weight: 800; color: var(--teal-dark); margin-bottom: 4px; }
-  .form-header p { color: var(--text-muted); font-size: 13px; }
-  .date-badge { display: inline-block; background: var(--teal-dark); color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 14px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 1px; }
+/* FORMS */
+.form-container{max-width:580px;margin:0 auto;padding:24px 16px 60px;}
+.form-header{text-align:center;margin-bottom:24px;}
+.form-header h1{font-size:21px;font-weight:800;color:var(--teal-dark);margin-bottom:4px;}
+.form-header p{color:var(--text-muted);font-size:13px;}
+.date-badge{display:inline-block;background:var(--teal-dark);color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 14px;border-radius:20px;margin-bottom:10px;letter-spacing:1px;}
+.card{background:#fff;border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px;border:1.5px solid var(--border);animation:fadeUp 0.5s ease both;}
+.card-title{font-size:12px;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-title::before{content:'';width:3px;height:16px;background:var(--teal-light);border-radius:2px;}
+label{display:block;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+input[type="text"],input[type="password"],input[type="date"],input[type="file"],select,textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;color:var(--text);background:var(--off-white);transition:border 0.2s,box-shadow 0.2s;outline:none;margin-bottom:14px;}
+input:focus,select:focus,textarea:focus{border-color:var(--teal-light);box-shadow:0 0 0 3px rgba(26,190,220,0.15);background:white;}
+textarea{resize:vertical;min-height:70px;}
+input[type="file"]{padding:8px 14px;cursor:pointer;}
 
-  .card { background: var(--card); border-radius: 18px; padding: 22px; box-shadow: var(--shadow); margin-bottom: 16px; border: 1.5px solid var(--border); animation: fadeUp 0.5s ease both; }
-  .card-title { font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .card-title::before { content: ''; width: 3px; height: 16px; background: var(--teal-light); border-radius: 2px; }
+/* ZONE TABS */
+.zone-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.zone-tab{padding:7px 14px;border:1.5px solid var(--border);border-radius:20px;background:var(--off-white);color:var(--text-muted);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.zone-tab:hover{border-color:var(--teal-light);color:var(--teal);}
+.zone-tab.active{background:var(--teal-dark);color:white;border-color:var(--teal-dark);}
 
-  label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-  input[type="text"], select, textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text); background: var(--off-white); transition: border 0.2s, box-shadow 0.2s; outline: none; margin-bottom: 14px; }
-  input:focus, select:focus, textarea:focus { border-color: var(--teal-light); box-shadow: 0 0 0 3px rgba(26,190,220,0.15); background: white; }
-  textarea { resize: vertical; min-height: 70px; }
+/* WORKER OPTIONS */
+.worker-option{padding:10px 16px;cursor:pointer;font-size:13px;display:flex;justify-content:space-between;align-items:center;transition:background 0.15s;border-bottom:1px solid var(--border);}
+.worker-option:last-child{border-bottom:none;}
+.worker-option:hover{background:var(--off-white);}
+.zone-tag{font-size:10px;background:rgba(26,190,220,0.12);color:var(--teal);padding:2px 8px;border-radius:10px;font-weight:600;}
 
-  /* Zone tabs */
-  .zone-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-  .zone-tab { padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 20px; background: var(--off-white); color: var(--text-muted); font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .zone-tab:hover { border-color: var(--teal-light); color: var(--teal); }
-  .zone-tab.active { background: var(--teal-dark); color: white; border-color: var(--teal-dark); }
+/* EXCEPTION ENTRIES */
+.exceptions-list{display:flex;flex-direction:column;gap:12px;}
+.exception-entry{background:var(--off-white);border:1.5px solid var(--border);border-radius:14px;padding:16px;position:relative;animation:fadeUp 0.3s ease both;}
+.exception-entry.status-absent{border-left:4px solid var(--danger);}
+.exception-entry.status-sick{border-left:4px solid var(--sick);}
+.exception-entry.status-nvp{border-left:4px solid var(--nvp);}
+.exception-entry.status-halfday{border-left:4px solid var(--warning);}
+.exception-entry.status-late{border-left:4px solid var(--late);}
+.exception-entry.status-comment{border-left:4px solid var(--comment);}
+.exception-entry.status-replacement{border-left:4px solid var(--success);}
+.exception-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.worker-name-display{font-weight:700;font-size:14px;color:var(--teal-dark);}
+.worker-zone-display{font-size:10px;color:var(--text-muted);font-weight:500;}
+.remove-btn{background:none;border:none;cursor:pointer;color:var(--danger);font-size:18px;padding:2px 6px;border-radius:6px;transition:background 0.2s;}
+.remove-btn:hover{background:#fef2f2;}
+.status-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.status-btn{padding:7px 12px;border:1.5px solid var(--border);border-radius:20px;background:white;cursor:pointer;font-family:'Sora',sans-serif;font-size:11px;font-weight:600;color:var(--text-muted);transition:all 0.2s;white-space:nowrap;}
+.sel-absent{border-color:var(--danger);background:#fef2f2;color:var(--danger);}
+.sel-sick{border-color:var(--sick);background:#fff7ed;color:var(--sick);}
+.sel-nvp{border-color:var(--nvp);background:#ecfeff;color:var(--nvp);}
+.sel-halfday{border-color:var(--warning);background:#fffbeb;color:var(--warning);}
+.sel-late{border-color:var(--late);background:#f5f3ff;color:var(--late);}
+.sel-comment{border-color:var(--comment);background:#f8fafc;color:var(--comment);}
+.sel-replacement{border-color:var(--success);background:#ecfdf5;color:var(--success);}
+.optional-fields{display:none;}.optional-fields.visible{display:block;}
 
-  /* Worker selector */
-  .worker-search { position: relative; margin-bottom: 10px; }
-  .worker-search input { margin-bottom: 0; padding-right: 40px; }
-  .worker-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid var(--teal-light); border-radius: 12px; box-shadow: 0 8px 24px rgba(10,79,110,0.15); z-index: 50; max-height: 220px; overflow-y: auto; display: none; }
-  .worker-dropdown.open { display: block; }
-  .worker-option { padding: 10px 16px; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; border-bottom: 1px solid var(--border); }
-  .worker-option:last-child { border-bottom: none; }
-  .worker-option:hover { background: var(--off-white); }
-  .worker-option .zone-tag { font-size: 10px; background: rgba(26,190,220,0.12); color: var(--teal); padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.add-exception-btn{width:100%;padding:13px;border:2px dashed var(--teal-light);border-radius:14px;background:rgba(26,190,220,0.05);color:var(--teal);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+.add-exception-btn:hover{background:rgba(26,190,220,0.12);}
+.submit-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--teal-dark),var(--teal));color:white;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(13,127,168,0.35);transition:all 0.2s;margin-top:8px;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(13,127,168,0.45);}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.submit-btn.danger{background:linear-gradient(135deg,#b91c1c,var(--danger));}
 
-  /* Exception entries */
-  .exceptions-list { display: flex; flex-direction: column; gap: 12px; }
-  .exception-entry { background: var(--off-white); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; position: relative; animation: fadeUp 0.3s ease both; }
-  .exception-entry.status-absent { border-left: 4px solid var(--danger); }
-  .exception-entry.status-sick { border-left: 4px solid var(--sick); }
-  .exception-entry.status-nvp { border-left: 4px solid var(--nvp); }
-  .exception-entry.status-halfday { border-left: 4px solid var(--warning); }
-  .exception-entry.status-late { border-left: 4px solid var(--late); }
-  .exception-entry.status-comment { border-left: 4px solid var(--comment); }
-  .exception-entry.status-replacement { border-left: 4px solid var(--success); }
+/* INCIDENT */
+.severity-grid{display:flex;gap:8px;margin-bottom:14px;}
+.sev-btn{flex:1;padding:10px;border:2px solid var(--border);border-radius:12px;background:white;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--text-muted);transition:all 0.2s;text-align:center;}
+.sev-btn.sel-low{border-color:var(--success);background:#ecfdf5;color:var(--success);}
+.sev-btn.sel-medium{border-color:var(--warning);background:#fffbeb;color:var(--warning);}
+.sev-btn.sel-high{border-color:var(--danger);background:#fef2f2;color:var(--danger);}
+.photo-preview{width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-top:8px;display:none;}
 
-  .exception-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .worker-name-display { font-weight: 700; font-size: 14px; color: var(--teal-dark); }
-  .worker-zone-display { font-size: 10px; color: var(--text-muted); font-weight: 500; }
-  .remove-btn { background: none; border: none; cursor: pointer; color: var(--danger); font-size: 18px; padding: 2px 6px; border-radius: 6px; transition: background 0.2s; }
-  .remove-btn:hover { background: #fef2f2; }
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--success);color:white;padding:14px 24px;border-radius:14px;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(16,185,129,0.4);z-index:999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.error{background:var(--danger);}
 
-  /* Status buttons */
-  .status-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .status-btn { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 20px; background: white; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-muted); transition: all 0.2s; white-space: nowrap; }
-  .status-btn:hover { border-color: var(--teal-light); }
-  .status-btn.sel-absent { border-color: var(--danger); background: #fef2f2; color: var(--danger); }
-  .status-btn.sel-sick { border-color: var(--sick); background: #fff7ed; color: var(--sick); }
-  .status-btn.sel-nvp { border-color: var(--nvp); background: #ecfeff; color: var(--nvp); }
-  .status-btn.sel-halfday { border-color: var(--warning); background: #fffbeb; color: var(--warning); }
-  .status-btn.sel-late { border-color: var(--late); background: #f5f3ff; color: var(--late); }
-  .status-btn.sel-comment { border-color: var(--comment); background: #f8fafc; color: var(--comment); }
-  .status-btn.sel-replacement { border-color: var(--success); background: #ecfdf5; color: var(--success); }
+/* LOGIN */
+.login-container{max-width:420px;margin:50px auto;padding:16px;}
+.login-card{background:white;border-radius:24px;padding:36px 32px;box-shadow:0 20px 60px rgba(10,79,110,0.15);border:1.5px solid var(--border);text-align:center;animation:fadeUp 0.5s ease both;}
+.login-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--teal-dark),var(--teal-light));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 8px 20px rgba(13,127,168,0.3);}
+.login-card h2{font-size:20px;font-weight:800;color:var(--teal-dark);margin-bottom:6px;}
+.login-card p{color:var(--text-muted);font-size:13px;margin-bottom:24px;}
+.login-error{color:var(--danger);font-size:12px;margin-top:-10px;margin-bottom:14px;display:none;}
+.sup-select-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:200px;overflow-y:auto;}
+.sup-select-btn{padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;background:var(--off-white);cursor:pointer;font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--text);transition:all 0.2s;text-align:left;}
+.sup-select-btn:hover{border-color:var(--teal-light);background:white;}
 
-  .optional-fields { display: none; }
-  .optional-fields.visible { display: block; }
-  .optional-fields label { margin-top: 8px; }
+/* ADMIN DASHBOARD */
+.dashboard{display:none;}.dashboard.active{display:block;}
+.dash-container{max-width:1000px;margin:0 auto;padding:24px 16px 40px;}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.dash-header h1{font-size:20px;font-weight:800;color:var(--teal-dark);}
+.dash-header p{color:var(--text-muted);font-size:12px;}
+.action-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn-sm{padding:8px 16px;border-radius:10px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;border:1.5px solid var(--border);background:white;color:var(--text-muted);}
+.btn-sm:hover{border-color:var(--teal);color:var(--teal);}
+.btn-sm.danger{border-color:#fecaca;background:#fef2f2;color:var(--danger);}
+.btn-sm.primary{background:var(--teal-dark);color:white;border-color:var(--teal-dark);}
 
-  .add-exception-btn { width: 100%; padding: 13px; border: 2px dashed var(--teal-light); border-radius: 14px; background: rgba(26,190,220,0.05); color: var(--teal); font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
-  .add-exception-btn:hover { background: rgba(26,190,220,0.12); }
+/* ADMIN TABS */
+.admin-tabs{display:flex;gap:4px;background:#e8f4f8;padding:4px;border-radius:14px;margin-bottom:24px;flex-wrap:wrap;}
+.admin-tab{padding:9px 16px;border-radius:10px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;transition:all 0.2s;color:var(--text-muted);background:transparent;flex:1;white-space:nowrap;}
+.admin-tab.active{background:white;color:var(--teal-dark);box-shadow:0 2px 8px rgba(10,79,110,0.1);}
+.admin-section{display:none;}.admin-section.active{display:block;}
 
-  .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--teal-dark), var(--teal)); color: white; border: none; border-radius: 14px; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(13,127,168,0.35); transition: all 0.2s; margin-top: 8px; }
-  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(13,127,168,0.45); }
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:24px;}
+.stat-card{background:white;border-radius:14px;padding:14px 10px;border:1.5px solid var(--border);box-shadow:var(--shadow);text-align:center;}
+.stat-num{font-size:22px;font-weight:800;margin-bottom:2px;}
+.stat-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);}
+.s-absent .stat-num{color:var(--danger);}.s-sick .stat-num{color:var(--sick);}
+.s-nvp .stat-num{color:var(--nvp);}.s-halfday .stat-num{color:var(--warning);}
+.s-late .stat-num{color:var(--late);}.s-replacement .stat-num{color:var(--success);}
+.s-comment .stat-num{color:var(--comment);}
 
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--success); color: white; padding: 14px 24px; border-radius: 14px; font-weight: 600; font-size: 14px; box-shadow: 0 8px 24px rgba(16,185,129,0.4); z-index: 999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* FILTERS */
+.filters{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.filters input,.filters select{flex:1;min-width:130px;margin-bottom:0;font-size:13px;padding:10px 14px;}
 
-  /* ADMIN */
-  .login-container { max-width: 400px; margin: 60px auto; padding: 16px; }
-  .login-card { background: white; border-radius: 24px; padding: 36px 32px; box-shadow: 0 20px 60px rgba(10,79,110,0.15); border: 1.5px solid var(--border); text-align: center; animation: fadeUp 0.5s ease both; }
-  .login-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--teal-dark), var(--teal-light)); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
-  .login-card h2 { font-size: 20px; font-weight: 800; color: var(--teal-dark); margin-bottom: 6px; }
-  .login-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
-  .login-error { color: var(--danger); font-size: 12px; margin-top: -10px; margin-bottom: 14px; display: none; }
+/* TABLE */
+.records-card{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;}
+.records-header{padding:16px 22px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.records-header h3{font-size:14px;font-weight:700;color:var(--teal-dark);}
+.record-count{font-size:11px;color:var(--text-muted);background:var(--off-white);padding:4px 12px;border-radius:20px;font-weight:600;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--off-white);padding:11px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);border-bottom:1.5px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--off-white);}
+td{padding:11px 14px;color:var(--text);vertical-align:top;}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.b-absent{background:#fef2f2;color:var(--danger);}.b-sick{background:#fff7ed;color:var(--sick);}
+.b-nvp{background:#ecfeff;color:var(--nvp);}.b-halfday{background:#fffbeb;color:var(--warning);}
+.b-late{background:#f5f3ff;color:var(--late);}.b-replacement{background:#ecfdf5;color:var(--success);}
+.b-comment{background:#f8fafc;color:var(--comment);}
+.b-low{background:#ecfdf5;color:var(--success);}.b-medium{background:#fffbeb;color:var(--warning);}
+.b-high{background:#fef2f2;color:var(--danger);}
+.notes-cell{max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-muted);font-size:12px;}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);}
+.empty-state .emoji{font-size:40px;margin-bottom:12px;}
+.clickable-row{cursor:pointer;}
+.clickable-row:hover td{background:rgba(26,190,220,0.06);}
 
-  .dashboard { display: none; }
-  .dashboard.active { display: block; }
-  .dash-container { max-width: 960px; margin: 0 auto; padding: 24px 16px 40px; }
-  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .dash-header h1 { font-size: 20px; font-weight: 800; color: var(--teal-dark); }
-  .dash-header p { color: var(--text-muted); font-size: 12px; }
+/* WORKER HISTORY MODAL */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,40,55,0.6);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal{background:white;border-radius:24px;padding:28px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(6,40,55,0.25);animation:fadeUp 0.3s ease both;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-header h2{font-size:18px;font-weight:800;color:var(--teal-dark);}
+.modal-close{background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-muted);padding:4px 8px;border-radius:8px;}
+.modal-close:hover{background:var(--off-white);}
+.history-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.history-stat{background:var(--off-white);border-radius:12px;padding:12px;text-align:center;}
+.history-stat .num{font-size:20px;font-weight:800;color:var(--teal-dark);}
+.history-stat .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
 
-  .action-btns { display: flex; gap: 8px; align-items: center; }
-  .logout-btn { padding: 8px 18px; background: none; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
-  .clear-btn { padding: 8px 16px; background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 10px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; color: var(--danger); cursor: pointer; transition: all 0.2s; }
-  .clear-btn:hover { background: #fee2e2; }
+/* CALENDAR */
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px;}
+.cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+.cal-day-header{text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;padding:4px;}
+.cal-day{border-radius:8px;padding:6px 4px;text-align:center;font-size:11px;font-weight:600;min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+.cal-day.empty{background:transparent;}
+.cal-day.normal{background:var(--off-white);color:var(--text-muted);}
+.cal-day.has-leave{background:#fef2f2;color:var(--danger);border:1.5px solid #fecaca;}
+.cal-day.today{background:var(--teal-dark);color:white;}
+.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-month-nav h3{font-size:15px;font-weight:700;color:var(--teal-dark);}
+.cal-nav-btn{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px;transition:all 0.2s;}
+.cal-nav-btn:hover{border-color:var(--teal-light);}
+.cal-legend{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;}
+.cal-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);}
+.cal-legend-dot{width:10px;height:10px;border-radius:3px;}
 
-  .stats-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 24px; }
-  .stat-card { background: white; border-radius: 14px; padding: 14px 10px; border: 1.5px solid var(--border); box-shadow: var(--shadow); text-align: center; }
-  .stat-num { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
-  .stat-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
-  .stat-card.s-absent .stat-num { color: var(--danger); }
-  .stat-card.s-sick .stat-num { color: var(--sick); }
-  .stat-card.s-nvp .stat-num { color: var(--nvp); }
-  .stat-card.s-halfday .stat-num { color: var(--warning); }
-  .stat-card.s-late .stat-num { color: var(--late); }
-  .stat-card.s-comment .stat-num { color: var(--comment); }
-  .stat-card.s-replacement .stat-num { color: var(--success); }
+/* WORKER MGMT */
+.worker-mgmt-card{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.worker-mgmt-header{padding:16px 22px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.worker-mgmt-header h3{font-size:14px;font-weight:700;color:var(--teal-dark);}
+.add-worker-form{padding:16px 22px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1.5px solid var(--border);}
+.add-worker-form input,.add-worker-form select{flex:1;min-width:150px;margin-bottom:0;font-size:13px;padding:10px 14px;}
+.add-worker-form button{padding:10px 20px;background:var(--teal-dark);color:white;border:none;border-radius:12px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.workers-table{width:100%;border-collapse:collapse;font-size:13px;}
+.workers-table th{background:var(--off-white);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);border-bottom:1.5px solid var(--border);}
+.workers-table td{padding:10px 14px;border-bottom:1px solid var(--border);}
+.workers-table tr:last-child td{border-bottom:none;}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--danger);font-size:16px;padding:2px 6px;border-radius:6px;}
+.del-btn:hover{background:#fef2f2;}
+.view-history-btn{background:rgba(26,190,220,0.1);border:1px solid var(--teal-light);color:var(--teal);font-size:11px;font-weight:600;padding:3px 10px;border-radius:8px;cursor:pointer;font-family:'Sora',sans-serif;}
 
-  .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-  .filters input, .filters select { flex: 1; min-width: 130px; margin-bottom: 0; font-size: 13px; padding: 10px 14px; }
+/* SUPERVISOR MGMT */
+.sup-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(26,190,220,0.12);color:var(--teal);}
 
-  .records-card { background: white; border-radius: 18px; border: 1.5px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
-  .records-header { padding: 16px 22px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .records-header h3 { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
-  .record-count { font-size: 11px; color: var(--text-muted); background: var(--off-white); padding: 4px 12px; border-radius: 20px; font-weight: 600; }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { background: var(--off-white); padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--off-white); }
-  td { padding: 11px 14px; color: var(--text); vertical-align: top; }
+/* REPORT */
+.report-controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end;}
+.report-controls select,.report-controls input{flex:1;min-width:150px;margin-bottom:0;}
+.report-card{background:white;border-radius:18px;border:1.5px solid var(--border);box-shadow:var(--shadow);padding:24px;margin-bottom:16px;}
+.report-title{font-size:16px;font-weight:800;color:var(--teal-dark);margin-bottom:4px;}
+.report-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.report-worker-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+.report-worker-row:last-child{border-bottom:none;}
+.report-worker-name{font-weight:600;font-size:14px;}
+.report-worker-zone{font-size:11px;color:var(--text-muted);}
+.report-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.report-badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;}
 
-  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .b-absent { background: #fef2f2; color: var(--danger); }
-  .b-sick { background: #fff7ed; color: var(--sick); }
-  .b-nvp { background: #ecfeff; color: var(--nvp); }
-  .b-halfday { background: #fffbeb; color: var(--warning); }
-  .b-late { background: #f5f3ff; color: var(--late); }
-  .b-comment { background: #f8fafc; color: var(--comment); }
-  .b-replacement { background: #ecfdf5; color: var(--success); }
+/* PHOTO */
+.incident-photo{width:60px;height:60px;object-fit:cover;border-radius:8px;cursor:pointer;}
+.photo-modal img{max-width:100%;border-radius:12px;}
 
-  .notes-cell { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-size: 12px; }
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
-  .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
-
-  /* Admin worker management */
-  .worker-mgmt { margin-top: 24px; }
-  .worker-mgmt-card { background: white; border-radius: 18px; border: 1.5px solid var(--border); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
-  .worker-mgmt-header { padding: 16px 22px; border-bottom: 1.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .worker-mgmt-header h3 { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
-  .add-worker-form { padding: 16px 22px; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1.5px solid var(--border); }
-  .add-worker-form input, .add-worker-form select { flex: 1; min-width: 150px; margin-bottom: 0; font-size: 13px; padding: 10px 14px; }
-  .add-worker-form button { padding: 10px 20px; background: var(--teal-dark); color: white; border: none; border-radius: 12px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .workers-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .workers-table th { background: var(--off-white); padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); border-bottom: 1.5px solid var(--border); }
-  .workers-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-  .workers-table tr:last-child td { border-bottom: none; }
-  .del-worker-btn { background: none; border: none; cursor: pointer; color: var(--danger); font-size: 16px; padding: 2px 6px; border-radius: 6px; }
-  .del-worker-btn:hover { background: #fef2f2; }
-
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @media (max-width: 600px) {
-    .stats-row { grid-template-columns: repeat(3, 1fr); }
-    .nav-tab { padding: 6px 10px; font-size: 11px; }
-  }
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:640px){
+  .stats-row{grid-template-columns:repeat(4,1fr);}
+  .nav-tab{padding:5px 8px;font-size:10px;}
+  .history-stats{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <div class="topnav">
   <div class="nav-brand">
     <div class="nav-logo">CC</div>
@@ -215,58 +256,113 @@
       <div class="nav-subtitle">Attendance System</div>
     </div>
   </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('supervisor', this)">📋 Supervisor</button>
-    <button class="nav-tab" onclick="showPage('admin', this)">🔐 Admin</button>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tabSup" onclick="showMainPage('supervisor',this)">📋 Supervisor</button>
+      <button class="nav-tab" id="tabInc" onclick="showMainPage('incident',this)" style="display:none">🚨 Incident</button>
+      <button class="nav-tab" id="tabAdmin" onclick="showMainPage('admin',this)">🔐 Admin</button>
+    </div>
   </div>
 </div>
 
-<!-- ===== SUPERVISOR PAGE ===== -->
+<!-- ===== SUPERVISOR LOGIN ===== -->
 <div id="page-supervisor" class="page active">
-  <div class="form-container">
-    <div class="form-header">
-      <div class="date-badge" id="todayDate"></div>
-      <h1>Report Exception</h1>
-      <p>Only record absent, sick, leave, late or comments</p>
-    </div>
-
-    <div class="card" style="animation-delay:0.1s">
-      <div class="card-title">Supervisor Info</div>
-      <label>Your Name</label>
-      <input type="text" id="supervisorName" placeholder="Enter your name..." />
-    </div>
-
-    <div class="card" style="animation-delay:0.2s">
-      <div class="card-title">Worker Exceptions</div>
-      <div class="exceptions-list" id="exceptionsList"></div>
-      <button class="add-exception-btn" onclick="showWorkerPicker()">+ Add Worker Exception</button>
-
-      <!-- Worker picker modal inline -->
-      <div id="workerPicker" style="display:none; margin-top:14px; background:white; border:1.5px solid var(--teal-light); border-radius:14px; padding:16px;">
-        <label>Search & Select Worker</label>
-        <div class="worker-search">
-          <input type="text" id="workerSearchInput" placeholder="Type worker name or zone..." oninput="filterWorkers()" autocomplete="off" style="margin-bottom:0" />
-        </div>
-        <!-- Zone filter tabs -->
-        <div class="zone-tabs" style="margin-top:10px;" id="zoneFilterTabs">
-          <button class="zone-tab active" onclick="filterByZone('', this)">All</button>
-          <button class="zone-tab" onclick="filterByZone('Zone 1', this)">Zone 1</button>
-          <button class="zone-tab" onclick="filterByZone('Zone 2', this)">Zone 2</button>
-          <button class="zone-tab" onclick="filterByZone('Zone 3', this)">Zone 3</button>
-          <button class="zone-tab" onclick="filterByZone('Zone 4 - WK Phoenix', this)">Zone 4</button>
-          <button class="zone-tab" onclick="filterByZone('Support Team', this)">Support</button>
-        </div>
-        <div id="workerListContainer" style="max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;margin-top:8px;"></div>
-        <button onclick="cancelPicker()" style="margin-top:10px;width:100%;padding:10px;background:var(--off-white);border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;">Cancel</button>
+  <div id="supLoginPage">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-icon">👷</div>
+        <h2>Supervisor Login</h2>
+        <p>Select your name and enter your password</p>
+        <label>Select Your Name</label>
+        <select id="supLoginName" style="margin-bottom:14px;">
+          <option value="">-- Select your name --</option>
+        </select>
+        <label>Password</label>
+        <input type="password" id="supLoginPass" placeholder="Enter your password..." onkeydown="if(event.key==='Enter')supervisorLogin()" />
+        <p class="login-error" id="supLoginError">❌ Incorrect password. Try again.</p>
+        <button class="submit-btn" onclick="supervisorLogin()">Login →</button>
       </div>
     </div>
+  </div>
 
-    <div class="card" style="animation-delay:0.3s">
-      <div class="card-title">General Notes (Optional)</div>
-      <textarea id="generalNotes" placeholder="Any general notes for the office..."></textarea>
+  <div id="supMainPage" style="display:none">
+    <div class="form-container">
+      <div class="form-header">
+        <div class="date-badge" id="todayDate"></div>
+        <h1>Report Exception</h1>
+        <p id="supWelcome">Record absent, sick, leave, late or comments</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Worker Exceptions</div>
+        <div class="exceptions-list" id="exceptionsList"></div>
+        <button class="add-exception-btn" onclick="showWorkerPicker()">+ Add Worker Exception</button>
+
+        <div id="workerPicker" style="display:none;margin-top:14px;background:white;border:1.5px solid var(--teal-light);border-radius:14px;padding:16px;">
+          <label>Search & Select Worker</label>
+          <input type="text" id="workerSearchInput" placeholder="Type worker name or zone..." oninput="filterWorkers()" autocomplete="off" style="margin-bottom:0" />
+          <div class="zone-tabs" style="margin-top:10px;" id="zoneFilterTabs">
+            <button class="zone-tab active" onclick="filterByZone('',this)">All</button>
+            <button class="zone-tab" onclick="filterByZone('Zone 1',this)">Zone 1</button>
+            <button class="zone-tab" onclick="filterByZone('Zone 2',this)">Zone 2</button>
+            <button class="zone-tab" onclick="filterByZone('Zone 3',this)">Zone 3</button>
+            <button class="zone-tab" onclick="filterByZone('Zone 4 - WK Phoenix',this)">Zone 4</button>
+            <button class="zone-tab" onclick="filterByZone('Support Team',this)">Support</button>
+          </div>
+          <div id="workerListContainer" style="max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;margin-top:8px;"></div>
+          <button onclick="cancelPicker()" style="margin-top:10px;width:100%;padding:10px;background:var(--off-white);border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">General Notes (Optional)</div>
+        <textarea id="generalNotes" placeholder="Any general notes for the office..."></textarea>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">✅ Submit Report</button>
+      <button class="submit-btn danger" style="margin-top:8px;" onclick="supervisorLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INCIDENT PAGE ===== -->
+<div id="page-incident" class="page">
+  <div class="form-container">
+    <div class="form-header">
+      <div class="date-badge" id="incidentDate"></div>
+      <h1>🚨 Report Incident</h1>
+      <p>Log any workplace incident or issue</p>
     </div>
 
-    <button class="submit-btn" onclick="submitAttendance()">✅ Submit Report</button>
+    <div class="card">
+      <div class="card-title">Incident Details</div>
+      <label>Zone / Location</label>
+      <select id="incidentZone">
+        <option value="">-- Select Zone --</option>
+        <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+        <option>Zone 4 - WK Phoenix</option><option>Support Team</option><option>Other</option>
+      </select>
+      <label>Type of Incident</label>
+      <input type="text" id="incidentType" placeholder="e.g. Equipment damage, Client complaint, Safety hazard..." />
+      <label>Severity</label>
+      <div class="severity-grid">
+        <button class="sev-btn" onclick="selectSeverity('Low',this)">🟢 Low</button>
+        <button class="sev-btn" onclick="selectSeverity('Medium',this)">🟡 Medium</button>
+        <button class="sev-btn" onclick="selectSeverity('High',this)">🔴 High</button>
+      </div>
+      <input type="hidden" id="incidentSeverity" value="" />
+      <label>Description</label>
+      <textarea id="incidentDesc" placeholder="Describe what happened in detail..."></textarea>
+      <label>Action Taken (Optional)</label>
+      <input type="text" id="incidentAction" placeholder="What was done to address it?" />
+      <label>Photo Evidence (Optional)</label>
+      <input type="file" id="incidentPhoto" accept="image/*" onchange="previewPhoto()" />
+      <img id="photoPreview" class="photo-preview" />
+    </div>
+
+    <button class="submit-btn danger" id="incidentSubmitBtn" onclick="submitIncident()">🚨 Submit Incident Report</button>
+    <button class="submit-btn" style="margin-top:8px;background:linear-gradient(135deg,var(--comment),#475569);" onclick="supervisorLogout()">Logout</button>
   </div>
 </div>
 
@@ -276,12 +372,11 @@
     <div class="login-card">
       <div class="login-icon">🔐</div>
       <h2>Admin Access</h2>
-      <p>Enter your password to view attendance records</p>
+      <p>Enter your password to access the dashboard</p>
       <label>Password</label>
-      <input type="text" id="adminPassword" placeholder="Enter admin password..." onkeydown="if(event.key==='Enter') adminLogin()" />
+      <input type="password" id="adminPassword" placeholder="Enter admin password..." onkeydown="if(event.key==='Enter')adminLogin()" />
       <p class="login-error" id="loginError">❌ Incorrect password. Try again.</p>
       <button class="submit-btn" onclick="adminLogin()">Login →</button>
-
     </div>
   </div>
 
@@ -289,64 +384,177 @@
     <div class="dash-container">
       <div class="dash-header">
         <div>
-          <h1>📊 Attendance Dashboard</h1>
-          <p>All exception reports from supervisors</p>
+          <h1>📊 Admin Dashboard</h1>
+          <p>CleanCare Building Solution Ltd</p>
         </div>
         <div class="action-btns">
-          <button class="clear-btn" onclick="clearAllRecords()">🗑 Clear All</button>
-          <button class="logout-btn" onclick="adminLogout()">Logout</button>
+          <button class="btn-sm" onclick="renderDashboard()">🔄 Refresh</button>
+          <button class="btn-sm danger" onclick="clearAllRecords()">🗑 Clear Records</button>
+          <button class="btn-sm danger" onclick="adminLogout()">Logout</button>
         </div>
       </div>
 
-      <div class="stats-row">
-        <div class="stat-card s-absent"><div class="stat-num" id="st-absent">0</div><div class="stat-label">Absent</div></div>
-        <div class="stat-card s-sick"><div class="stat-num" id="st-sick">0</div><div class="stat-label">Sick Leave</div></div>
-        <div class="stat-card s-nvp"><div class="stat-num" id="st-nvp">0</div><div class="stat-label">Local Leave</div></div>
-        <div class="stat-card s-halfday"><div class="stat-num" id="st-halfday">0</div><div class="stat-label">Half Day</div></div>
-        <div class="stat-card s-late"><div class="stat-num" id="st-late">0</div><div class="stat-label">Late</div></div>
-        <div class="stat-card s-replacement"><div class="stat-num" id="st-replacement">0</div><div class="stat-label">Replacement</div></div>
-        <div class="stat-card s-comment"><div class="stat-num" id="st-comment">0</div><div class="stat-label">Comment</div></div>
+      <!-- Admin Tabs -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="showAdminTab('attendance',this)">📋 Attendance</button>
+        <button class="admin-tab" onclick="showAdminTab('incidents',this)">🚨 Incidents</button>
+        <button class="admin-tab" onclick="showAdminTab('calendar',this)">📅 Leave Calendar</button>
+        <button class="admin-tab" onclick="showAdminTab('report',this)">📄 Monthly Report</button>
+        <button class="admin-tab" onclick="showAdminTab('supervisors',this)">👷 Supervisors</button>
+        <button class="admin-tab" onclick="showAdminTab('workers',this)">👥 Workers</button>
       </div>
 
-      <div class="filters">
-        <input type="date" id="filterDate" onchange="renderTable()" />
-        <select id="filterZone" onchange="renderTable()">
-          <option value="">All Zones</option>
-          <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
-          <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
-        </select>
-        <select id="filterStatus" onchange="renderTable()">
-          <option value="">All Statuses</option>
-          <option>Absent</option><option>Sick Leave</option><option>Local Leave (NVP)</option>
-          <option>Half Day</option><option>Late</option><option>Replacement/Location</option><option>Comment</option>
-        </select>
-      </div>
-
-      <div class="records-card">
-        <div class="records-header">
-          <h3>Exception Records</h3>
-          <span class="record-count" id="recordCount">0 records</span>
+      <!-- ATTENDANCE TAB -->
+      <div class="admin-section active" id="section-attendance">
+        <div class="stats-row">
+          <div class="stat-card s-absent"><div class="stat-num" id="st-absent">0</div><div class="stat-label">Absent</div></div>
+          <div class="stat-card s-sick"><div class="stat-num" id="st-sick">0</div><div class="stat-label">Sick</div></div>
+          <div class="stat-card s-nvp"><div class="stat-num" id="st-nvp">0</div><div class="stat-label">Local Leave</div></div>
+          <div class="stat-card s-halfday"><div class="stat-num" id="st-halfday">0</div><div class="stat-label">Half Day</div></div>
+          <div class="stat-card s-late"><div class="stat-num" id="st-late">0</div><div class="stat-label">Late</div></div>
+          <div class="stat-card s-replacement"><div class="stat-num" id="st-replacement">0</div><div class="stat-label">Replacement</div></div>
+          <div class="stat-card s-comment"><div class="stat-num" id="st-comment">0</div><div class="stat-label">Comment</div></div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Date & Time</th><th>Supervisor</th><th>Zone</th><th>Worker</th>
-              <th>Status</th><th>Replacement / Location</th><th>Notes</th>
-            </tr></thead>
-            <tbody id="recordsBody"></tbody>
-          </table>
-          <div class="empty-state" id="emptyState">
-            <div class="emoji">📭</div>
-            <p>No exception records yet.<br>Submissions will appear here.</p>
+        <div class="filters">
+          <input type="date" id="filterDate" onchange="renderAttendanceTable()" />
+          <select id="filterZone" onchange="renderAttendanceTable()">
+            <option value="">All Zones</option>
+            <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+            <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
+          </select>
+          <select id="filterStatus" onchange="renderAttendanceTable()">
+            <option value="">All Statuses</option>
+            <option>Absent</option><option>Sick Leave</option><option>Local Leave (NVP)</option>
+            <option>Half Day</option><option>Late</option><option>Replacement/Location</option><option>Comment</option>
+          </select>
+        </div>
+        <div class="records-card">
+          <div class="records-header">
+            <h3>Exception Records</h3>
+            <span class="record-count" id="recordCount">0 records</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date & Time</th><th>Supervisor</th><th>Zone</th><th>Worker</th><th>Status</th><th>Replacement/Location</th><th>Notes</th></tr></thead>
+              <tbody id="recordsBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState"><div class="emoji">📭</div><p>No records yet.</p></div>
           </div>
         </div>
       </div>
 
-      <!-- Worker Management -->
-      <div class="worker-mgmt">
+      <!-- INCIDENTS TAB -->
+      <div class="admin-section" id="section-incidents">
+        <div class="records-card">
+          <div class="records-header">
+            <h3>🚨 Incident Reports</h3>
+            <span class="record-count" id="incidentCount">0 incidents</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date & Time</th><th>Supervisor</th><th>Zone</th><th>Type</th><th>Severity</th><th>Description</th><th>Action Taken</th><th>Photo</th></tr></thead>
+              <tbody id="incidentsBody"></tbody>
+            </table>
+            <div class="empty-state" id="incidentEmpty"><div class="emoji">✅</div><p>No incidents reported.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR TAB -->
+      <div class="admin-section" id="section-calendar">
+        <div class="card" style="animation:none;">
+          <div class="cal-month-nav">
+            <button class="cal-nav-btn" onclick="changeCalMonth(-1)">◀</button>
+            <h3 id="calMonthTitle">Month Year</h3>
+            <button class="cal-nav-btn" onclick="changeCalMonth(1)">▶</button>
+          </div>
+          <div class="filters" style="margin-bottom:16px;">
+            <select id="calZoneFilter" onchange="renderCalendar()">
+              <option value="">All Zones</option>
+              <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+              <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
+            </select>
+          </div>
+          <div class="cal-header" id="calDayHeaders"></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+          <div class="cal-legend">
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fef2f2;border:1px solid #fecaca;"></div>Has Leave/Absence</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--teal-dark);"></div>Today</div>
+          </div>
+        </div>
+        <div class="records-card" id="calDayDetail" style="display:none;">
+          <div class="records-header"><h3 id="calDayTitle">Selected Day</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Worker</th><th>Zone</th><th>Status</th><th>Notes</th></tr></thead>
+              <tbody id="calDayBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MONTHLY REPORT TAB -->
+      <div class="admin-section" id="section-report">
+        <div class="report-controls">
+          <div style="flex:1;min-width:150px;">
+            <label>Month</label>
+            <select id="reportMonth">
+              <option value="0">January</option><option value="1">February</option>
+              <option value="2">March</option><option value="3">April</option>
+              <option value="4">May</option><option value="5">June</option>
+              <option value="6">July</option><option value="7">August</option>
+              <option value="8">September</option><option value="9">October</option>
+              <option value="10">November</option><option value="11">December</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:120px;">
+            <label>Year</label>
+            <input type="text" id="reportYear" value="2026" />
+          </div>
+          <div style="flex:1;min-width:130px;">
+            <label>Zone</label>
+            <select id="reportZone">
+              <option value="">All Zones</option>
+              <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+              <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
+            </select>
+          </div>
+          <button class="btn-sm primary" style="margin-top:20px;" onclick="generateReport()">Generate Report</button>
+        </div>
+        <div id="reportOutput"></div>
+      </div>
+
+      <!-- SUPERVISORS TAB -->
+      <div class="admin-section" id="section-supervisors">
         <div class="worker-mgmt-card">
           <div class="worker-mgmt-header">
-            <h3>👷 Manage Worker List</h3>
+            <h3>👷 Manage Supervisors</h3>
+            <span class="record-count" id="supCount">0 supervisors</span>
+          </div>
+          <div class="add-worker-form">
+            <input type="text" id="newSupName" placeholder="Supervisor full name..." />
+            <select id="newSupZone">
+              <option value="">Assigned Zone</option>
+              <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+              <option>Zone 4 - WK Phoenix</option><option>Support Team</option><option>All Zones</option>
+            </select>
+            <input type="password" id="newSupPass" placeholder="Set password..." style="min-width:130px;"/>
+            <button onclick="addSupervisor()">+ Add</button>
+          </div>
+          <div class="table-wrap">
+            <table class="workers-table">
+              <thead><tr><th>#</th><th>Name</th><th>Zone</th><th>Password</th><th>Remove</th></tr></thead>
+              <tbody id="supMgmtBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKERS TAB -->
+      <div class="admin-section" id="section-workers">
+        <div class="worker-mgmt-card">
+          <div class="worker-mgmt-header">
+            <h3>👥 Manage Workers</h3>
             <span class="record-count" id="workerCount">0 workers</span>
           </div>
           <div class="add-worker-form">
@@ -360,216 +568,247 @@
           </div>
           <div class="table-wrap">
             <table class="workers-table">
-              <thead><tr><th>#</th><th>Name</th><th>Zone</th><th>Remove</th></tr></thead>
+              <thead><tr><th>#</th><th>Name</th><th>Zone</th><th>History</th><th>Remove</th></tr></thead>
               <tbody id="workerMgmtBody"></tbody>
             </table>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast">✅ Report submitted successfully!</div>
+<!-- WORKER HISTORY MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="historyWorkerName">Worker History</h2>
+      <button class="modal-close" onclick="closeModal('historyModal')">✕</button>
+    </div>
+    <div class="history-stats" id="historyStats"></div>
+    <div class="records-card" style="box-shadow:none;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Status</th><th>Supervisor</th><th>Notes</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO MODAL -->
+<div class="modal-overlay" id="photoModal">
+  <div class="modal photo-modal" style="max-width:500px;">
+    <div class="modal-header">
+      <h2>Incident Photo</h2>
+      <button class="modal-close" onclick="closeModal('photoModal')">✕</button>
+    </div>
+    <img id="photoModalImg" src="" style="max-width:100%;border-radius:12px;" />
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Submitted successfully!</div>
 
 <script>
-// ===== WORKER DATA =====
+// ===== CONFIG =====
+const SHEET_API = 'https://script.google.com/macros/s/AKfycbzVYW8Rb3ov4Y5d3_XfNRENm4-_MZUD8b4S79H6T86KOH5_BMwWnsxCHFDFbwf4Izhesg/exec';
+const ADMIN_PASS = 'cleancare2024';
+
+// ===== DEFAULT DATA =====
 const DEFAULT_WORKERS = [
-  // Zone 1
-  { name: "Deepak Mutty", zone: "Zone 1" },
-  { name: "Mohun Rajesh Vinay", zone: "Zone 1" },
-  { name: "Motee Marie Sundy Christina", zone: "Zone 1" },
-  { name: "Denis Marilyn", zone: "Zone 1" },
-  { name: "Stephanie Youcouable", zone: "Zone 1" },
-  { name: "Gloria Armoogum", zone: "Zone 1" },
-  { name: "Hypolite Marie Caroline (B1Y)", zone: "Zone 1" },
-  { name: "Akbur Beebee Saida", zone: "Zone 1" },
-  { name: "Sheila Calaumont", zone: "Zone 1" },
-  { name: "Marie Sandrine Kassandra", zone: "Zone 1" },
-  { name: "Baptiste Marie Corinne", zone: "Zone 1" },
-  { name: "Berard Marie Pamela Dolores", zone: "Zone 1" },
-  { name: "Sindy Solamalay", zone: "Zone 1" },
-  { name: "Jennifer Marie Joanne Gopaul", zone: "Zone 1" },
-  { name: "Joseph Marie Louise Danielle", zone: "Zone 1" },
-  { name: "Cannoo Rookwantee", zone: "Zone 1" },
-  { name: "Hema Broudanaika", zone: "Zone 1" },
-  { name: "GOPEE Marie Valeria Alzira", zone: "Zone 1" },
-  { name: "Cangy Marie Rose Stella", zone: "Zone 1" },
-  { name: "Gabriel Marie Dorine", zone: "Zone 1" },
-  { name: "Augushin Isabelle Flora", zone: "Zone 1" },
-  { name: "Dookhit Khelawati (Vasou)", zone: "Zone 1" },
-  // Zone 2
-  { name: "Yvelette Gaiquis", zone: "Zone 2" },
-  { name: "Chouchoux Bryan", zone: "Zone 2" },
-  { name: "Nohur Sobha Devi", zone: "Zone 2" },
-  { name: "Joselita Felicite", zone: "Zone 2" },
-  { name: "Jonckeer France Gerard", zone: "Zone 2" },
-  { name: "Preeti Cheeneebans", zone: "Zone 2" },
-  { name: "Thungavelu Tanesree (B1Y)", zone: "Zone 2" },
-  { name: "Pamela Augustin", zone: "Zone 2" },
-  { name: "Kistnen Beebee Rookian", zone: "Zone 2" },
-  { name: "Chaya Buldan", zone: "Zone 2" },
-  { name: "Imrith Soobhawtee (Reshma)", zone: "Zone 2" },
-  { name: "Sugitte Marianne-Gourdin Marie (B1Y)", zone: "Zone 2" },
-  { name: "Marie Louise Prospere (B1Y)", zone: "Zone 2" },
-  { name: "Cossil Padaruth FREELANCE", zone: "Zone 2" },
-  { name: "Anwar Mahadawoo", zone: "Zone 2" },
-  { name: "Anique Adolphe", zone: "Zone 2" },
-  // Zone 3
-  { name: "Mala Sinha Sewnarain", zone: "Zone 3" },
-  { name: "Hurjoon Rita", zone: "Zone 3" },
-  { name: "Marjolin Marie Charone Pascale Toussaint", zone: "Zone 3" },
-  { name: "Azhar Issop", zone: "Zone 3" },
-  { name: "Charlen Benoit", zone: "Zone 3" },
-  { name: "Marie Christine Tickfine", zone: "Zone 3" },
-  { name: "Tickfine Roseline", zone: "Zone 3" },
-  { name: "Mirella Arnold", zone: "Zone 3" },
-  { name: "Joannie Jasmin", zone: "Zone 3" },
-  { name: "Oojageer Maya Devi", zone: "Zone 3" },
-  { name: "Cite Rolande Marie Luce", zone: "Zone 3" },
-  { name: "Santa Vinoba Beebakhie (Sunil)", zone: "Zone 3" },
-  // Zone 4
-  { name: "Rooksanah Soobratee", zone: "Zone 4 - WK Phoenix" },
-  { name: "Marie Sheila Sabrina Jolicoeur", zone: "Zone 4 - WK Phoenix" },
-  { name: "Omphal Marie Dominique (B1Y)", zone: "Zone 4 - WK Phoenix" },
-  // Support Team
-  { name: "Sagim Moonan", zone: "Support Team" },
-  { name: "Jayshree Valaydon Chengebroyen", zone: "Support Team" },
-  { name: "Auckloo Pritish Sharma", zone: "Support Team" },
-  { name: "Bhavanee Devi Garibdass (B1Y)", zone: "Support Team" },
-  { name: "Mamitiana Raharinjanahary (B1Y)", zone: "Support Team" },
+  {name:"Deepak Mutty",zone:"Zone 1"},{name:"Mohun Rajesh Vinay",zone:"Zone 1"},
+  {name:"Motee Marie Sundy Christina",zone:"Zone 1"},{name:"Denis Marilyn",zone:"Zone 1"},
+  {name:"Stephanie Youcouable",zone:"Zone 1"},{name:"Gloria Armoogum",zone:"Zone 1"},
+  {name:"Hypolite Marie Caroline (B1Y)",zone:"Zone 1"},{name:"Akbur Beebee Saida",zone:"Zone 1"},
+  {name:"Sheila Calaumont",zone:"Zone 1"},{name:"Marie Sandrine Kassandra",zone:"Zone 1"},
+  {name:"Baptiste Marie Corinne",zone:"Zone 1"},{name:"Berard Marie Pamela Dolores",zone:"Zone 1"},
+  {name:"Sindy Solamalay",zone:"Zone 1"},{name:"Jennifer Marie Joanne Gopaul",zone:"Zone 1"},
+  {name:"Joseph Marie Louise Danielle",zone:"Zone 1"},{name:"Cannoo Rookwantee",zone:"Zone 1"},
+  {name:"Hema Broudanaika",zone:"Zone 1"},{name:"GOPEE Marie Valeria Alzira",zone:"Zone 1"},
+  {name:"Cangy Marie Rose Stella",zone:"Zone 1"},{name:"Gabriel Marie Dorine",zone:"Zone 1"},
+  {name:"Augushin Isabelle Flora",zone:"Zone 1"},{name:"Dookhit Khelawati (Vasou)",zone:"Zone 1"},
+  {name:"Yvelette Gaiquis",zone:"Zone 2"},{name:"Chouchoux Bryan",zone:"Zone 2"},
+  {name:"Nohur Sobha Devi",zone:"Zone 2"},{name:"Joselita Felicite",zone:"Zone 2"},
+  {name:"Jonckeer France Gerard",zone:"Zone 2"},{name:"Preeti Cheeneebans",zone:"Zone 2"},
+  {name:"Thungavelu Tanesree (B1Y)",zone:"Zone 2"},{name:"Pamela Augustin",zone:"Zone 2"},
+  {name:"Kistnen Beebee Rookian",zone:"Zone 2"},{name:"Chaya Buldan",zone:"Zone 2"},
+  {name:"Imrith Soobhawtee (Reshma)",zone:"Zone 2"},{name:"Sugitte Marianne-Gourdin Marie (B1Y)",zone:"Zone 2"},
+  {name:"Marie Louise Prospere (B1Y)",zone:"Zone 2"},{name:"Cossil Padaruth FREELANCE",zone:"Zone 2"},
+  {name:"Anwar Mahadawoo",zone:"Zone 2"},{name:"Anique Adolphe",zone:"Zone 2"},
+  {name:"Mala Sinha Sewnarain",zone:"Zone 3"},{name:"Hurjoon Rita",zone:"Zone 3"},
+  {name:"Marjolin Marie Charone Pascale Toussaint",zone:"Zone 3"},{name:"Azhar Issop",zone:"Zone 3"},
+  {name:"Charlen Benoit",zone:"Zone 3"},{name:"Marie Christine Tickfine",zone:"Zone 3"},
+  {name:"Tickfine Roseline",zone:"Zone 3"},{name:"Mirella Arnold",zone:"Zone 3"},
+  {name:"Joannie Jasmin",zone:"Zone 3"},{name:"Oojageer Maya Devi",zone:"Zone 3"},
+  {name:"Cite Rolande Marie Luce",zone:"Zone 3"},{name:"Santa Vinoba Beebakhie (Sunil)",zone:"Zone 3"},
+  {name:"Rooksanah Soobratee",zone:"Zone 4 - WK Phoenix"},{name:"Marie Sheila Sabrina Jolicoeur",zone:"Zone 4 - WK Phoenix"},
+  {name:"Omphal Marie Dominique (B1Y)",zone:"Zone 4 - WK Phoenix"},
+  {name:"Sagim Moonan",zone:"Support Team"},{name:"Jayshree Valaydon Chengebroyen",zone:"Support Team"},
+  {name:"Auckloo Pritish Sharma",zone:"Support Team"},{name:"Bhavanee Devi Garibdass (B1Y)",zone:"Support Team"},
+  {name:"Mamitiana Raharinjanahary (B1Y)",zone:"Support Team"}
 ];
 
+const DEFAULT_SUPERVISORS = [
+  {name:"Admin Supervisor",zone:"All Zones",password:"super2024"}
+];
+
+// ===== LOCAL STORAGE =====
+function saveWorkers(w){try{localStorage.setItem('cc_workers',JSON.stringify(w));}catch(e){window._workers=w;}}
+function loadWorkers(){try{const r=localStorage.getItem('cc_workers');return r?JSON.parse(r):DEFAULT_WORKERS;}catch(e){return window._workers||DEFAULT_WORKERS;}}
+function saveSupervisors(s){try{localStorage.setItem('cc_supervisors',JSON.stringify(s));}catch(e){window._sups=s;}}
+function loadSupervisors(){try{const r=localStorage.getItem('cc_supervisors');return r?JSON.parse(r):DEFAULT_SUPERVISORS;}catch(e){return window._sups||DEFAULT_SUPERVISORS;}}
+
 // ===== GOOGLE SHEETS API =====
-const SHEET_API = 'https://script.google.com/macros/s/AKfycbzVYW8Rb3ov4Y5d3_XfNRENm4-_MZUD8b4S79H6T86KOH5_BMwWnsxCHFDFbwf4Izhesg/exec';
-
-async function sendToSheet(record) {
-  try {
-    await fetch(SHEET_API, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'addRecord', ...record })
-    });
+async function sendToSheet(record){
+  try{
+    await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(record)});
     return true;
-  } catch(e) { console.error('Sheet error:', e); return false; }
+  }catch(e){console.error(e);return false;}
 }
 
-async function fetchFromSheet() {
-  try {
-    const res = await fetch(SHEET_API + '?action=getRecords');
-    const data = await res.json();
-    if (data.success) return data.records || [];
-    return [];
-  } catch(e) { console.error('Fetch error:', e); return []; }
+async function fetchFromSheet(action){
+  try{
+    const res=await fetch(SHEET_API+'?action='+action);
+    const data=await res.json();
+    return data.success?(data.records||data.incidents||[]):[];
+  }catch(e){console.error(e);return[];}
 }
 
-async function clearSheet() {
-  try {
-    await fetch(SHEET_API, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'clearRecords' })
-    });
-    return true;
-  } catch(e) { return false; }
-}
-
-// ===== LOCAL WORKER STORAGE =====
-function saveWorkers(workers) {
-  try { localStorage.setItem('cc_workers', JSON.stringify(workers)); } catch(e) { window._workers = workers; }
-}
-function loadWorkers() {
-  try {
-    const r = localStorage.getItem('cc_workers');
-    return r ? JSON.parse(r) : DEFAULT_WORKERS;
-  } catch(e) { return window._workers || DEFAULT_WORKERS; }
+async function clearSheet(type){
+  try{
+    await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:type==='incidents'?'clearIncidents':'clearRecords'})});
+  }catch(e){}
 }
 
 // ===== STATE =====
-let currentWorkers = [];
-let currentZoneFilter = '';
-let exceptionCount = 0;
-const ADMIN_PASS = 'cleancare2024';
+let currentWorkers=[];
+let currentSupervisors=[];
+let loggedInSupervisor=null;
+let currentZoneFilter='';
+let exceptionCount=0;
+let calYear=new Date().getFullYear();
+let calMonth=new Date().getMonth();
 
-async function init() {
-  currentWorkers = loadWorkers();
-  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+function init(){
+  currentWorkers=loadWorkers();
+  currentSupervisors=loadSupervisors();
+  const today=new Date();
+  const dateStr=today.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('todayDate').textContent=dateStr;
+  document.getElementById('incidentDate').textContent=dateStr;
+  populateSupLoginList();
+  const savedSup=sessionStorage.getItem('cc_logged_sup');
+  if(savedSup){
+    loggedInSupervisor=JSON.parse(savedSup);
+    showSupDashboard();
+  }
 }
 init();
 
 // ===== PAGE NAV =====
-function showPage(page, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
+function showMainPage(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
   btn.classList.add('active');
-  if (page === 'admin') renderDashboard();
+  if(page==='admin')renderDashboard();
+}
+
+// ===== SUPERVISOR LOGIN =====
+function populateSupLoginList(){
+  const sups=loadSupervisors();
+  const sel=document.getElementById('supLoginName');
+  sel.innerHTML='<option value="">-- Select your name --</option>';
+  sups.forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s.name;opt.textContent=s.name;
+    sel.appendChild(opt);
+  });
+}
+
+function supervisorLogin(){
+  const name=document.getElementById('supLoginName').value;
+  const pass=document.getElementById('supLoginPass').value;
+  const sups=loadSupervisors();
+  const sup=sups.find(s=>s.name===name&&s.password===pass);
+  if(sup){
+    loggedInSupervisor=sup;
+    sessionStorage.setItem('cc_logged_sup',JSON.stringify(sup));
+    document.getElementById('supLoginError').style.display='none';
+    document.getElementById('supLoginPass').value='';
+    showSupDashboard();
+  }else{
+    document.getElementById('supLoginError').style.display='block';
+    document.getElementById('supLoginPass').value='';
+  }
+}
+
+function showSupDashboard(){
+  document.getElementById('supLoginPage').style.display='none';
+  document.getElementById('supMainPage').style.display='block';
+  document.getElementById('supWelcome').textContent='Welcome, '+loggedInSupervisor.name+' 👋';
+  document.getElementById('navUser').textContent=loggedInSupervisor.name;
+  document.getElementById('tabInc').style.display='block';
+}
+
+function supervisorLogout(){
+  loggedInSupervisor=null;
+  sessionStorage.removeItem('cc_logged_sup');
+  document.getElementById('supLoginPage').style.display='block';
+  document.getElementById('supMainPage').style.display='none';
+  document.getElementById('navUser').textContent='';
+  document.getElementById('tabInc').style.display='none';
+  document.getElementById('exceptionsList').innerHTML='';
+  document.getElementById('generalNotes').value='';
+  exceptionCount=0;
+  document.getElementById('supLoginPass').value='';
+  populateSupLoginList();
 }
 
 // ===== WORKER PICKER =====
-function showWorkerPicker() {
-  document.getElementById('workerPicker').style.display = 'block';
-  document.getElementById('workerSearchInput').value = '';
-  currentZoneFilter = '';
-  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+function showWorkerPicker(){
+  document.getElementById('workerPicker').style.display='block';
+  document.getElementById('workerSearchInput').value='';
+  currentZoneFilter='';
+  document.querySelectorAll('.zone-tab').forEach(t=>t.classList.remove('active'));
   document.querySelector('.zone-tab').classList.add('active');
   renderWorkerList();
   document.getElementById('workerSearchInput').focus();
 }
-
-function cancelPicker() {
-  document.getElementById('workerPicker').style.display = 'none';
-}
-
-function filterByZone(zone, el) {
-  currentZoneFilter = zone;
-  document.querySelectorAll('.zone-tab').forEach(t => t.classList.remove('active'));
+function cancelPicker(){document.getElementById('workerPicker').style.display='none';}
+function filterByZone(zone,el){
+  currentZoneFilter=zone;
+  document.querySelectorAll('.zone-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   renderWorkerList();
 }
-
-function filterWorkers() { renderWorkerList(); }
-
-function renderWorkerList() {
-  const search = document.getElementById('workerSearchInput').value.toLowerCase();
-  const container = document.getElementById('workerListContainer');
-  const filtered = currentWorkers.filter(w => {
-    const matchZone = !currentZoneFilter || w.zone === currentZoneFilter;
-    const matchSearch = !search || w.name.toLowerCase().includes(search) || w.zone.toLowerCase().includes(search);
-    return matchZone && matchSearch;
+function filterWorkers(){renderWorkerList();}
+function renderWorkerList(){
+  const search=document.getElementById('workerSearchInput').value.toLowerCase();
+  const container=document.getElementById('workerListContainer');
+  const filtered=currentWorkers.filter(w=>{
+    const mz=!currentZoneFilter||w.zone===currentZoneFilter;
+    const ms=!search||w.name.toLowerCase().includes(search)||w.zone.toLowerCase().includes(search);
+    return mz&&ms;
   });
-  if (filtered.length === 0) {
-    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">No workers found</div>';
-    return;
-  }
-  container.innerHTML = filtered.map(w => `
-    <div class="worker-option" onclick="selectWorker('${w.name.replace(/'/g,"\\'")}','${w.zone.replace(/'/g,"\\'")}')">
-      <span>${w.name}</span>
-      <span class="zone-tag">${w.zone}</span>
-    </div>
-  `).join('');
+  if(!filtered.length){container.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">No workers found</div>';return;}
+  container.innerHTML=filtered.map(w=>`<div class="worker-option" onclick="selectWorker('${w.name.replace(/'/g,"\\'")}','${w.zone.replace(/'/g,"\\'")}')"><span>${w.name}</span><span class="zone-tag">${w.zone}</span></div>`).join('');
 }
-
-function selectWorker(name, zone) {
-  cancelPicker();
-  addExceptionEntry(name, zone);
-}
+function selectWorker(name,zone){cancelPicker();addExceptionEntry(name,zone);}
 
 // ===== EXCEPTION ENTRIES =====
-function addExceptionEntry(name, zone) {
+const statusClassMap={'Absent':'absent','Sick Leave':'sick','Local Leave (NVP)':'nvp','Half Day':'halfday','Late':'late','Replacement/Location':'replacement','Comment':'comment'};
+
+function addExceptionEntry(name,zone){
   exceptionCount++;
-  const id = exceptionCount;
-  const div = document.createElement('div');
-  div.className = 'exception-entry';
-  div.id = 'exc-' + id;
-  div.innerHTML = `
+  const id=exceptionCount;
+  const div=document.createElement('div');
+  div.className='exception-entry';div.id='exc-'+id;
+  div.innerHTML=`
     <div class="exception-header">
-      <div>
-        <div class="worker-name-display">${name}</div>
-        <div class="worker-zone-display">${zone}</div>
-      </div>
+      <div><div class="worker-name-display">${name}</div><div class="worker-zone-display">${zone}</div></div>
       <button class="remove-btn" onclick="removeException(${id})">✕</button>
     </div>
     <div class="status-grid">
@@ -578,250 +817,390 @@ function addExceptionEntry(name, zone) {
       <button class="status-btn" onclick="selectExcStatus(${id},'Local Leave (NVP)')">🏖 Local Leave (NVP)</button>
       <button class="status-btn" onclick="selectExcStatus(${id},'Half Day')">🌓 Half Day</button>
       <button class="status-btn" onclick="selectExcStatus(${id},'Late')">🕐 Late</button>
-      <button class="status-btn" onclick="selectExcStatus(${id},'Replacement/Location')">🔄 Replacement / Location</button>
+      <button class="status-btn" onclick="selectExcStatus(${id},'Replacement/Location')">🔄 Replacement/Location</button>
       <button class="status-btn" onclick="selectExcStatus(${id},'Comment')">💬 Comment</button>
     </div>
     <input type="hidden" id="estatus-${id}" value="" data-name="${name}" data-zone="${zone}" />
     <div class="optional-fields" id="optfields-${id}">
       <label>Replacement Name / Working Location <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
-      <input type="text" id="erepl-${id}" placeholder="e.g. replaced by Marie, or working at Bagatelle..." />
+      <input type="text" id="erepl-${id}" placeholder="e.g. Replaced by Marie, working at Bagatelle..." />
       <label>Note <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
       <input type="text" id="enote-${id}" placeholder="Any additional note..." />
-    </div>
-  `;
+    </div>`;
   document.getElementById('exceptionsList').appendChild(div);
 }
 
-function removeException(id) {
-  const el = document.getElementById('exc-' + id);
-  if (el) el.remove();
-}
+function removeException(id){const el=document.getElementById('exc-'+id);if(el)el.remove();}
 
-const statusClassMap = {
-  'Absent': 'absent', 'Sick Leave': 'sick', 'Local Leave (NVP)': 'nvp',
-  'Half Day': 'halfday', 'Late': 'late', 'Replacement/Location': 'replacement', 'Comment': 'comment'
-};
-
-function selectExcStatus(id, status) {
-  document.getElementById('estatus-' + id).value = status;
-  const entry = document.getElementById('exc-' + id);
-  entry.className = 'exception-entry status-' + (statusClassMap[status] || 'comment');
-  // reset buttons
-  entry.querySelectorAll('.status-btn').forEach(b => b.className = 'status-btn');
-  // highlight selected
-  entry.querySelectorAll('.status-btn').forEach(b => {
-    if (b.textContent.includes(status.split(' ')[0]) || b.onclick?.toString().includes(`'${status}'`)) {
-      b.classList.add('sel-' + (statusClassMap[status] || 'comment'));
-    }
+function selectExcStatus(id,status){
+  document.getElementById('estatus-'+id).value=status;
+  const entry=document.getElementById('exc-'+id);
+  entry.className='exception-entry status-'+(statusClassMap[status]||'comment');
+  entry.querySelectorAll('.status-btn').forEach(b=>{
+    b.className='status-btn';
+    if(b.getAttribute('onclick')?.includes("'"+status+"'"))b.classList.add('sel-'+(statusClassMap[status]||'comment'));
   });
-  // fix: highlight by matching onclick
-  entry.querySelectorAll('.status-btn').forEach(b => {
-    const match = b.getAttribute('onclick')?.includes(`'${status}'`);
-    if (match) b.classList.add('sel-' + (statusClassMap[status] || 'comment'));
-    else b.className = 'status-btn';
-  });
-  document.getElementById('optfields-' + id).classList.add('visible');
+  document.getElementById('optfields-'+id).classList.add('visible');
 }
 
-// ===== SUBMIT =====
-async function submitAttendance() {
-  const supervisor = document.getElementById('supervisorName').value.trim();
-  if (!supervisor) { alert('Please enter your name.'); return; }
-
-  const entries = document.querySelectorAll('.exception-entry');
-  if (entries.length === 0) { alert('Please add at least one worker exception.'); return; }
-
-  const today = new Date().toISOString().split('T')[0];
-  const time = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-
-  let hasError = false;
-  const recordsToSend = [];
-
-  for (const entry of entries) {
-    const idMatch = entry.id.match(/exc-(\d+)/);
-    if (!idMatch) continue;
-    const id = idMatch[1];
-    const statusEl = document.getElementById('estatus-' + id);
-    if (!statusEl) continue;
-    const status = statusEl.value;
-    const name = statusEl.dataset.name;
-    const zone = statusEl.dataset.zone;
-    if (!status) { alert(`Please select a status for ${name}.`); hasError = true; break; }
-
-    recordsToSend.push({
-      date: today,
-      time,
-      supervisor,
-      zone,
-      workerName: name,
-      status,
-      replacement: document.getElementById('erepl-' + id)?.value.trim() || '',
-      notes: document.getElementById('enote-' + id)?.value.trim() || '',
-      generalNotes: document.getElementById('generalNotes').value.trim()
-    });
+// ===== SUBMIT ATTENDANCE =====
+async function submitAttendance(){
+  if(!loggedInSupervisor){alert('Please login first.');return;}
+  const entries=document.querySelectorAll('.exception-entry');
+  if(!entries.length){alert('Please add at least one worker exception.');return;}
+  const today=new Date().toISOString().split('T')[0];
+  const time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  let hasError=false;
+  const recordsToSend=[];
+  for(const entry of entries){
+    const idMatch=entry.id.match(/exc-(\d+)/);if(!idMatch)continue;
+    const id=idMatch[1];
+    const statusEl=document.getElementById('estatus-'+id);if(!statusEl)continue;
+    const status=statusEl.value;const name=statusEl.dataset.name;const zone=statusEl.dataset.zone;
+    if(!status){alert('Please select a status for '+name+'.');hasError=true;break;}
+    recordsToSend.push({action:'addRecord',date:today,time,supervisor:loggedInSupervisor.name,zone,workerName:name,status,replacement:document.getElementById('erepl-'+id)?.value.trim()||'',notes:document.getElementById('enote-'+id)?.value.trim()||'',generalNotes:document.getElementById('generalNotes').value.trim()});
   }
+  if(hasError)return;
+  const btn=document.getElementById('submitBtn');
+  btn.textContent='⏳ Submitting...';btn.disabled=true;
+  for(const r of recordsToSend)await sendToSheet(r);
+  document.getElementById('generalNotes').value='';
+  document.getElementById('exceptionsList').innerHTML='';
+  exceptionCount=0;
+  btn.textContent='✅ Submit Report';btn.disabled=false;
+  showToast('✅ Report submitted successfully!','success');
+}
 
-  if (hasError) return;
+// ===== INCIDENT =====
+function selectSeverity(level,el){
+  document.getElementById('incidentSeverity').value=level;
+  document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
+  el.classList.add('sel-'+level.toLowerCase());
+}
 
-  // Show loading state
-  const submitBtn = document.querySelector('.submit-btn');
-  submitBtn.textContent = '⏳ Submitting...';
-  submitBtn.disabled = true;
-
-  // Send each record to Google Sheets
-  for (const record of recordsToSend) {
-    await sendToSheet(record);
+function previewPhoto(){
+  const file=document.getElementById('incidentPhoto').files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=e=>{const img=document.getElementById('photoPreview');img.src=e.target.result;img.style.display='block';};
+    reader.readAsDataURL(file);
   }
-
-  // Reset
-  document.getElementById('supervisorName').value = '';
-  document.getElementById('generalNotes').value = '';
-  document.getElementById('exceptionsList').innerHTML = '';
-  exceptionCount = 0;
-  submitBtn.textContent = '✅ Submit Report';
-  submitBtn.disabled = false;
-
-  showToast();
 }
 
-function showToast() {
-  const t = document.getElementById('toast');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+async function submitIncident(){
+  if(!loggedInSupervisor){alert('Please login first.');return;}
+  const zone=document.getElementById('incidentZone').value;
+  const type=document.getElementById('incidentType').value.trim();
+  const severity=document.getElementById('incidentSeverity').value;
+  const desc=document.getElementById('incidentDesc').value.trim();
+  if(!zone||!type||!severity||!desc){alert('Please fill in all required fields including severity.');return;}
+  const today=new Date().toISOString().split('T')[0];
+  const time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  const action=document.getElementById('incidentAction').value.trim();
+  let photoData='';
+  const photoFile=document.getElementById('incidentPhoto').files[0];
+  if(photoFile){
+    photoData=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(photoFile);});
+  }
+  const btn=document.getElementById('incidentSubmitBtn');
+  btn.textContent='⏳ Submitting...';btn.disabled=true;
+  await sendToSheet({action:'addIncident',date:today,time,supervisor:loggedInSupervisor.name,zone,type,severity,description:desc,actionTaken:action,photo:photoData});
+  document.getElementById('incidentZone').value='';
+  document.getElementById('incidentType').value='';
+  document.getElementById('incidentSeverity').value='';
+  document.getElementById('incidentDesc').value='';
+  document.getElementById('incidentAction').value='';
+  document.getElementById('incidentPhoto').value='';
+  document.getElementById('photoPreview').style.display='none';
+  document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
+  btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
+  showToast('🚨 Incident reported successfully!','success');
 }
 
-// ===== ADMIN =====
-function adminLogin() {
-  const pw = document.getElementById('adminPassword').value;
-  if (pw === ADMIN_PASS) {
-    document.getElementById('adminLogin').style.display = 'none';
+// ===== TOAST =====
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type==='error'?' error':'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===== ADMIN LOGIN =====
+function adminLogin(){
+  const pw=document.getElementById('adminPassword').value;
+  if(pw===ADMIN_PASS){
+    document.getElementById('adminLogin').style.display='none';
     document.getElementById('adminDashboard').classList.add('active');
     renderDashboard();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('adminPassword').value = '';
+  }else{
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('adminPassword').value='';
   }
 }
-
-function adminLogout() {
-  document.getElementById('adminLogin').style.display = 'block';
+function adminLogout(){
+  document.getElementById('adminLogin').style.display='block';
   document.getElementById('adminDashboard').classList.remove('active');
-  document.getElementById('adminPassword').value = '';
-  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('adminPassword').value='';
+  document.getElementById('loginError').style.display='none';
 }
 
-async function renderDashboard() {
-  if (!document.getElementById('adminDashboard').classList.contains('active')) return;
-  currentWorkers = loadWorkers();
-  renderTable();
+// ===== ADMIN TABS =====
+function showAdminTab(tab,btn){
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('section-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='calendar')renderCalendar();
+  if(tab==='supervisors')renderSupMgmt();
+  if(tab==='workers')renderWorkerMgmt();
+  if(tab==='incidents')renderIncidentsTable();
+}
+
+// ===== RENDER DASHBOARD =====
+async function renderDashboard(){
+  if(!document.getElementById('adminDashboard').classList.contains('active'))return;
+  currentWorkers=loadWorkers();
+  currentSupervisors=loadSupervisors();
+  renderAttendanceTable();
+  renderSupMgmt();
   renderWorkerMgmt();
 }
 
-function formatDisplayDate(val) {
-  if (!val) return '—';
-  try {
-    const d = new Date(val);
-    if (isNaN(d)) return String(val);
-    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' });
-  } catch(e) { return String(val); }
+// ===== DATE HELPERS =====
+function fmtDate(val){
+  if(!val)return'—';
+  try{const d=new Date(val);if(isNaN(d))return String(val);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});}
+  catch(e){return String(val);}
+}
+function fmtTime(val){
+  if(!val)return'';
+  try{const d=new Date(val);if(isNaN(d))return String(val);return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+  catch(e){return String(val);}
+}
+function getDateStr(val){
+  if(!val)return'';
+  try{const d=new Date(val);if(isNaN(d))return String(val).substring(0,10);return d.toISOString().split('T')[0];}
+  catch(e){return String(val).substring(0,10);}
 }
 
-function formatDisplayTime(val) {
-  if (!val) return '';
-  try {
-    const d = new Date(val);
-    if (isNaN(d)) return String(val);
-    return d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-  } catch(e) { return String(val); }
-}
-
-async function renderTable() {
-  // Show loading
-  document.getElementById('recordsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading records...</td></tr>';
-  document.getElementById('emptyState').style.display = 'none';
-  const records = await fetchFromSheet();
-  const fd = document.getElementById('filterDate')?.value || '';
-  const fz = document.getElementById('filterZone')?.value || '';
-  const fs = document.getElementById('filterStatus')?.value || '';
-
-  let filtered = records.filter(r => {
-    if (fd && r.date !== fd) return false;
-    if (fz && r.zone !== fz) return false;
-    if (fs && r.status !== fs) return false;
+// ===== ATTENDANCE TABLE =====
+async function renderAttendanceTable(){
+  document.getElementById('recordsBody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading...</td></tr>';
+  document.getElementById('emptyState').style.display='none';
+  const records=await fetchFromSheet('getRecords');
+  const fd=document.getElementById('filterDate')?.value||'';
+  const fz=document.getElementById('filterZone')?.value||'';
+  const fs=document.getElementById('filterStatus')?.value||'';
+  let filtered=records.filter(r=>{
+    if(fd&&getDateStr(r.date)!==fd)return false;
+    if(fz&&r.zone!==fz)return false;
+    if(fs&&r.status!==fs)return false;
     return true;
-  }).sort((a,b) => b.date.localeCompare(a.date) || b.time?.localeCompare(a.time || '') || 0);
+  }).sort((a,b)=>getDateStr(b.date).localeCompare(getDateStr(a.date)));
+  const stMap={'Absent':'absent','Sick Leave':'sick','Local Leave (NVP)':'nvp','Half Day':'halfday','Late':'late','Replacement/Location':'replacement','Comment':'comment'};
+  Object.keys(stMap).forEach(s=>{const el=document.getElementById('st-'+stMap[s]);if(el)el.textContent=records.filter(r=>r.status===s).length;});
+  document.getElementById('recordCount').textContent=`${filtered.length} record${filtered.length!==1?'s':''}`;
+  const tbody=document.getElementById('recordsBody');
+  const empty=document.getElementById('emptyState');
+  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  const bc={'Absent':'b-absent','Sick Leave':'b-sick','Local Leave (NVP)':'b-nvp','Half Day':'b-halfday','Late':'b-late','Replacement/Location':'b-replacement','Comment':'b-comment'};
+  tbody.innerHTML=filtered.map(r=>`<tr><td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmtDate(r.date)}</span><br><span style="font-size:10px;color:var(--text-muted)">${r.time||''}</span></td><td style="font-weight:600">${r.supervisor||''}</td><td style="font-size:12px">${r.zone||''}</td><td style="font-weight:600">${r.workerName||''}</td><td><span class="status-badge ${bc[r.status]||''}">${r.status||''}</span></td><td style="color:var(--text-muted);font-size:12px">${r.replacement||'—'}</td><td class="notes-cell" title="${r.notes||r.generalNotes||''}">${r.notes||r.generalNotes||'—'}</td></tr>`).join('');
+}
 
-  // Stats from ALL records
-  const stMap = { 'Absent':'absent','Sick Leave':'sick','Local Leave (NVP)':'nvp','Half Day':'halfday','Late':'late','Replacement/Location':'replacement','Comment':'comment' };
-  Object.keys(stMap).forEach(s => {
-    const el = document.getElementById('st-' + stMap[s]);
-    if (el) el.textContent = records.filter(r => r.status === s).length;
+// ===== INCIDENTS TABLE =====
+async function renderIncidentsTable(){
+  document.getElementById('incidentsBody').innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading...</td></tr>';
+  document.getElementById('incidentEmpty').style.display='none';
+  const incidents=await fetchFromSheet('getIncidents');
+  document.getElementById('incidentCount').textContent=`${incidents.length} incident${incidents.length!==1?'s':''}`;
+  const tbody=document.getElementById('incidentsBody');
+  if(!incidents.length){tbody.innerHTML='';document.getElementById('incidentEmpty').style.display='block';return;}
+  const sc={'Low':'b-low','Medium':'b-medium','High':'b-high'};
+  tbody.innerHTML=incidents.map(i=>`<tr><td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmtDate(i.date)}</span><br><span style="font-size:10px;color:var(--text-muted)">${i.time||''}</span></td><td style="font-weight:600">${i.supervisor||''}</td><td style="font-size:12px">${i.zone||''}</td><td style="font-weight:600">${i.type||''}</td><td><span class="status-badge ${sc[i.severity]||''}">${i.severity||''}</span></td><td class="notes-cell" title="${i.description||''}">${i.description||'—'}</td><td style="font-size:12px;color:var(--text-muted)">${i.actionTaken||'—'}</td><td>${i.photo?`<img src="${i.photo}" class="incident-photo" onclick="viewPhoto('${i.photo}')" />`:'—'}</td></tr>`).join('');
+}
+
+function viewPhoto(src){document.getElementById('photoModalImg').src=src;document.getElementById('photoModal').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ===== CLEAR =====
+async function clearAllRecords(){
+  if(!confirm('Clear ALL attendance records? This cannot be undone.'))return;
+  await clearSheet('records');renderAttendanceTable();
+}
+
+// ===== CALENDAR =====
+function changeCalMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+async function renderCalendar(){
+  const records=await fetchFromSheet('getRecords');
+  const zf=document.getElementById('calZoneFilter')?.value||'';
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthTitle').textContent=months[calMonth]+' '+calYear;
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('calDayHeaders').innerHTML=days.map(d=>`<div class="cal-day-header">${d}</div>`).join('');
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();
+  const grid=document.getElementById('calendarGrid');
+  let html='';
+  for(let i=0;i<firstDay;i++)html+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayRecs=records.filter(r=>{
+      const rd=getDateStr(r.date);
+      const mz=!zf||r.zone===zf;
+      return rd===dateStr&&mz&&['Absent','Sick Leave','Local Leave (NVP)','Half Day'].includes(r.status);
+    });
+    const isToday=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    let cls=isToday?'today':dayRecs.length?'has-leave':'normal';
+    html+=`<div class="cal-day ${cls}" onclick="showCalDay('${dateStr}','${months[calMonth]} ${d}, ${calYear}')">${d}${dayRecs.length?`<span style="font-size:9px;display:block;margin-top:2px">${dayRecs.length}</span>`:''}`;
+    html+='</div>';
+  }
+  grid.innerHTML=html;
+}
+
+async function showCalDay(dateStr,label){
+  const records=await fetchFromSheet('getRecords');
+  const dayRecs=records.filter(r=>getDateStr(r.date)===dateStr);
+  const detail=document.getElementById('calDayDetail');
+  document.getElementById('calDayTitle').textContent='📅 '+label;
+  const tbody=document.getElementById('calDayBody');
+  if(!dayRecs.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">No exceptions on this day</td></tr>';}
+  else{
+    const bc={'Absent':'b-absent','Sick Leave':'b-sick','Local Leave (NVP)':'b-nvp','Half Day':'b-halfday','Late':'b-late','Replacement/Location':'b-replacement','Comment':'b-comment'};
+    tbody.innerHTML=dayRecs.map(r=>`<tr><td style="font-weight:600">${r.workerName||''}</td><td style="font-size:12px">${r.zone||''}</td><td><span class="status-badge ${bc[r.status]||''}">${r.status||''}</span></td><td style="font-size:12px;color:var(--text-muted)">${r.notes||r.generalNotes||'—'}</td></tr>`).join('');
+  }
+  detail.style.display='block';
+}
+
+// ===== MONTHLY REPORT =====
+async function generateReport(){
+  const month=parseInt(document.getElementById('reportMonth').value);
+  const year=parseInt(document.getElementById('reportYear').value);
+  const zone=document.getElementById('reportZone').value;
+  const records=await fetchFromSheet('getRecords');
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const filtered=records.filter(r=>{
+    const d=new Date(r.date);
+    const mz=!zone||r.zone===zone;
+    return d.getFullYear()===year&&d.getMonth()===month&&mz;
   });
-
-  document.getElementById('recordCount').textContent = `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`;
-  const tbody = document.getElementById('recordsBody');
-  const empty = document.getElementById('emptyState');
-
-  if (filtered.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  const badgeClass = { 'Absent':'b-absent','Sick Leave':'b-sick','Local Leave (NVP)':'b-nvp','Half Day':'b-halfday','Late':'b-late','Replacement/Location':'b-replacement','Comment':'b-comment' };
-
-  tbody.innerHTML = filtered.map(r => `
-    <tr>
-      <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${formatDisplayDate(r.date)}</span><br><span style="font-size:10px;color:var(--text-muted)">${formatDisplayTime(r.time)}</span></td>
-      <td style="font-weight:600">${r.supervisor}</td>
-      <td style="font-size:12px">${r.zone}</td>
-      <td style="font-weight:600">${r.workerName}</td>
-      <td><span class="status-badge ${badgeClass[r.status] || ''}">${r.status}</span></td>
-      <td style="color:var(--text-muted);font-size:12px">${r.replacement || '—'}</td>
-      <td class="notes-cell" title="${r.notes || r.generalNotes || ''}">${r.notes || r.generalNotes || '—'}</td>
-    </tr>
-  `).join('');
+  const workers=loadWorkers().filter(w=>!zone||w.zone===zone);
+  const out=document.getElementById('reportOutput');
+  if(!filtered.length){out.innerHTML='<div class="empty-state"><div class="emoji">📭</div><p>No records for this period.</p></div>';return;}
+  const workerMap={};
+  filtered.forEach(r=>{
+    if(!workerMap[r.workerName])workerMap[r.workerName]={name:r.workerName,zone:r.zone,absent:0,sick:0,nvp:0,halfday:0,late:0,total:0};
+    const w=workerMap[r.workerName];
+    if(r.status==='Absent')w.absent++;
+    else if(r.status==='Sick Leave')w.sick++;
+    else if(r.status==='Local Leave (NVP)')w.nvp++;
+    else if(r.status==='Half Day')w.halfday++;
+    else if(r.status==='Late')w.late++;
+    w.total++;
+  });
+  const rows=Object.values(workerMap).sort((a,b)=>b.total-a.total);
+  out.innerHTML=`
+    <div class="report-card">
+      <div class="report-title">📄 Monthly Attendance Report</div>
+      <div class="report-sub">${months[month]} ${year}${zone?' — '+zone:' — All Zones'} &nbsp;|&nbsp; ${filtered.length} total exceptions &nbsp;|&nbsp; ${rows.length} workers affected</div>
+      ${rows.map(w=>`
+        <div class="report-worker-row">
+          <div><div class="report-worker-name">${w.name}</div><div class="report-worker-zone">${w.zone}</div></div>
+          <div class="report-badges">
+            ${w.absent?`<span class="report-badge" style="background:#fef2f2;color:var(--danger)">❌ ${w.absent} Absent</span>`:''}
+            ${w.sick?`<span class="report-badge" style="background:#fff7ed;color:var(--sick)">🤒 ${w.sick} Sick</span>`:''}
+            ${w.nvp?`<span class="report-badge" style="background:#ecfeff;color:var(--nvp)">🏖 ${w.nvp} NVP</span>`:''}
+            ${w.halfday?`<span class="report-badge" style="background:#fffbeb;color:var(--warning)">🌓 ${w.halfday} Half Day</span>`:''}
+            ${w.late?`<span class="report-badge" style="background:#f5f3ff;color:var(--late)">🕐 ${w.late} Late</span>`:''}
+          </div>
+        </div>`).join('')}
+    </div>`;
 }
 
-async function clearAllRecords() {
-  if (!confirm('Clear ALL attendance records? This cannot be undone.')) return;
-  await clearSheet();
-  renderTable();
+// ===== WORKER HISTORY =====
+async function showWorkerHistory(name,zone){
+  document.getElementById('historyWorkerName').textContent=name+' — '+zone;
+  document.getElementById('historyBody').innerHTML='<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">⏳ Loading...</td></tr>';
+  document.getElementById('historyModal').classList.add('open');
+  const records=await fetchFromSheet('getRecords');
+  const wr=records.filter(r=>r.workerName===name).sort((a,b)=>getDateStr(b.date).localeCompare(getDateStr(a.date)));
+  const stats={absent:0,sick:0,nvp:0,halfday:0,late:0};
+  wr.forEach(r=>{
+    if(r.status==='Absent')stats.absent++;
+    else if(r.status==='Sick Leave')stats.sick++;
+    else if(r.status==='Local Leave (NVP)')stats.nvp++;
+    else if(r.status==='Half Day')stats.halfday++;
+    else if(r.status==='Late')stats.late++;
+  });
+  document.getElementById('historyStats').innerHTML=`
+    <div class="history-stat"><div class="num" style="color:var(--danger)">${stats.absent}</div><div class="lbl">Absent</div></div>
+    <div class="history-stat"><div class="num" style="color:var(--sick)">${stats.sick}</div><div class="lbl">Sick</div></div>
+    <div class="history-stat"><div class="num" style="color:var(--nvp)">${stats.nvp}</div><div class="lbl">Local Leave</div></div>
+    <div class="history-stat"><div class="num" style="color:var(--warning)">${stats.halfday}</div><div class="lbl">Half Day</div></div>
+    <div class="history-stat"><div class="num" style="color:var(--late)">${stats.late}</div><div class="lbl">Late</div></div>
+    <div class="history-stat"><div class="num" style="color:var(--teal-dark)">${wr.length}</div><div class="lbl">Total</div></div>`;
+  const bc={'Absent':'b-absent','Sick Leave':'b-sick','Local Leave (NVP)':'b-nvp','Half Day':'b-halfday','Late':'b-late','Replacement/Location':'b-replacement','Comment':'b-comment'};
+  if(!wr.length){document.getElementById('historyBody').innerHTML='<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted)">No records found</td></tr>';return;}
+  document.getElementById('historyBody').innerHTML=wr.map(r=>`<tr><td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${fmtDate(r.date)}</td><td><span class="status-badge ${bc[r.status]||''}">${r.status}</span></td><td style="font-size:12px">${r.supervisor||''}</td><td class="notes-cell">${r.notes||r.generalNotes||'—'}</td></tr>`).join('');
 }
 
-// Worker management
-async function renderWorkerMgmt() {
-  const workers = loadWorkers();
-  document.getElementById('workerCount').textContent = `${workers.length} workers`;
-  const tbody = document.getElementById('workerMgmtBody');
-  tbody.innerHTML = workers.map((w, i) => `
-    <tr>
-      <td style="color:var(--text-muted);font-size:12px">${i+1}</td>
-      <td style="font-weight:600">${w.name}</td>
-      <td><span class="zone-tag" style="font-size:10px;background:rgba(26,190,220,0.12);color:var(--teal);padding:2px 8px;border-radius:10px;font-weight:600;">${w.zone}</span></td>
-      <td><button class="del-worker-btn" onclick="deleteWorker(${i})">✕</button></td>
-    </tr>
-  `).join('');
+// ===== SUPERVISOR MGMT =====
+function renderSupMgmt(){
+  const sups=loadSupervisors();
+  document.getElementById('supCount').textContent=sups.length+' supervisors';
+  document.getElementById('supMgmtBody').innerHTML=sups.map((s,i)=>`<tr><td style="color:var(--text-muted);font-size:12px">${i+1}</td><td style="font-weight:600">${s.name}</td><td><span class="sup-badge">${s.zone||'—'}</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted)">${s.password}</td><td><button class="del-btn" onclick="deleteSupervisor(${i})">✕</button></td></tr>`).join('');
 }
 
-async function addWorkerToList() {
-  const name = document.getElementById('newWorkerName').value.trim();
-  const zone = document.getElementById('newWorkerZone').value;
-  if (!name || !zone) { alert('Please enter a name and select a zone.'); return; }
-  const workers = loadWorkers();
-  workers.push({ name, zone });
-  saveWorkers(workers);
-  currentWorkers = workers;
-  document.getElementById('newWorkerName').value = '';
-  document.getElementById('newWorkerZone').value = '';
+function addSupervisor(){
+  const name=document.getElementById('newSupName').value.trim();
+  const zone=document.getElementById('newSupZone').value;
+  const pass=document.getElementById('newSupPass').value.trim();
+  if(!name||!zone||!pass){alert('Please fill in all supervisor fields.');return;}
+  const sups=loadSupervisors();
+  if(sups.find(s=>s.name===name)){alert('A supervisor with this name already exists.');return;}
+  sups.push({name,zone,password:pass});
+  saveSupervisors(sups);currentSupervisors=sups;
+  document.getElementById('newSupName').value='';
+  document.getElementById('newSupZone').value='';
+  document.getElementById('newSupPass').value='';
+  renderSupMgmt();populateSupLoginList();
+  showToast('✅ Supervisor added!','success');
+}
+
+function deleteSupervisor(i){
+  if(!confirm('Remove this supervisor?'))return;
+  const sups=loadSupervisors();sups.splice(i,1);
+  saveSupervisors(sups);currentSupervisors=sups;
+  renderSupMgmt();populateSupLoginList();
+}
+
+// ===== WORKER MGMT =====
+function renderWorkerMgmt(){
+  const workers=loadWorkers();
+  document.getElementById('workerCount').textContent=workers.length+' workers';
+  document.getElementById('workerMgmtBody').innerHTML=workers.map((w,i)=>`<tr><td style="color:var(--text-muted);font-size:12px">${i+1}</td><td style="font-weight:600">${w.name}</td><td><span class="zone-tag">${w.zone}</span></td><td><button class="view-history-btn" onclick="showWorkerHistory('${w.name.replace(/'/g,"\\'")}','${w.zone.replace(/'/g,"\\'")}')">View History</button></td><td><button class="del-btn" onclick="deleteWorker(${i})">✕</button></td></tr>`).join('');
+}
+
+function addWorkerToList(){
+  const name=document.getElementById('newWorkerName').value.trim();
+  const zone=document.getElementById('newWorkerZone').value;
+  if(!name||!zone){alert('Please enter a name and zone.');return;}
+  const workers=loadWorkers();workers.push({name,zone});
+  saveWorkers(workers);currentWorkers=workers;
+  document.getElementById('newWorkerName').value='';
+  document.getElementById('newWorkerZone').value='';
   renderWorkerMgmt();
 }
 
-async function deleteWorker(index) {
-  if (!confirm('Remove this worker from the list?')) return;
-  const workers = loadWorkers();
-  workers.splice(index, 1);
-  saveWorkers(workers);
-  currentWorkers = workers;
-  renderWorkerMgmt();
+function deleteWorker(i){
+  if(!confirm('Remove this worker?'))return;
+  const workers=loadWorkers();workers.splice(i,1);
+  saveWorkers(workers);currentWorkers=workers;renderWorkerMgmt();
 }
+
+// Set default report month
+document.getElementById('reportMonth').value=new Date().getMonth();
 </script>
 </body>
 </html>
