@@ -676,6 +676,15 @@ async function sendToSheet(record){
   }catch(e){console.error(e);return false;}
 }
 
+// CORS-enabled post — used for incidents so we get the photo link back
+async function postToSheet(record){
+  try{
+    const res=await fetch(SHEET_API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(record)});
+    const data=await res.json();
+    return data;
+  }catch(e){console.error(e);return{success:false};}
+}
+
 async function fetchFromSheet(action){
   try{
     const res=await fetch(SHEET_API+'?action='+action);
@@ -926,28 +935,62 @@ async function submitIncident(){
   const today=new Date().toISOString().split('T')[0];
   const time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   const action=document.getElementById('incidentAction').value.trim();
-  let photoData='';
   const photoFile=document.getElementById('incidentPhoto').files[0];
-  if(photoFile){
-    try{
-      photoData=await compressPhoto(photoFile);
-    }catch(e){
-      photoData='';
-    }
-  }
+
   const btn=document.getElementById('incidentSubmitBtn');
-  btn.textContent='⏳ Submitting...';btn.disabled=true;
-  await sendToSheet({action:'addIncident',date:today,time,supervisor:loggedInSupervisor.name,zone,type,severity,description:desc,actionTaken:action,photo:photoData});
-  document.getElementById('incidentZone').value='';
-  document.getElementById('incidentType').value='';
-  document.getElementById('incidentSeverity').value='';
-  document.getElementById('incidentDesc').value='';
-  document.getElementById('incidentAction').value='';
-  document.getElementById('incidentPhoto').value='';
-  document.getElementById('photoPreview').style.display='none';
-  document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
-  btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
-  showToast('🚨 Incident reported successfully!','success');
+  btn.disabled=true;
+
+  // Step 1: compress photo if present
+  let photoData='';
+  if(photoFile){
+    btn.textContent='⏳ Compressing photo...';
+    try{ photoData=await compressPhoto(photoFile); }catch(e){ photoData=''; }
+  }
+
+  // Step 2: send everything together via form-encoded POST (avoids CORS body issues)
+  btn.textContent='⏳ Saving incident...';
+  try{
+    const formData=new FormData();
+    formData.append('action','addIncident');
+    formData.append('date',today);
+    formData.append('time',time);
+    formData.append('supervisor',loggedInSupervisor.name);
+    formData.append('zone',zone);
+    formData.append('type',type);
+    formData.append('severity',severity);
+    formData.append('description',desc);
+    formData.append('actionTaken',action);
+    if(photoData) formData.append('photo',photoData);
+
+    btn.textContent= photoData ? '⏳ Uploading photo...' : '⏳ Saving...';
+    const res=await fetch(SHEET_API,{method:'POST',body:formData});
+    const text=await res.text();
+    let result={success:false};
+    try{result=JSON.parse(text);}catch(e){}
+
+    // Reset form
+    document.getElementById('incidentZone').value='';
+    document.getElementById('incidentType').value='';
+    document.getElementById('incidentSeverity').value='';
+    document.getElementById('incidentDesc').value='';
+    document.getElementById('incidentAction').value='';
+    document.getElementById('incidentPhoto').value='';
+    document.getElementById('photoPreview').style.display='none';
+    document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
+    btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
+
+    if(result.photoLink){
+      showToast('🚨 Incident reported with photo ✅','success');
+    } else if(photoData){
+      showToast('⚠️ Incident saved but photo failed','error');
+    } else {
+      showToast('🚨 Incident reported successfully!','success');
+    }
+  }catch(e){
+    btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
+    showToast('❌ Submission failed. Please try again.','error');
+    console.error(e);
+  }
 }
 
 // ===== TOAST =====
@@ -1096,10 +1139,20 @@ function openIncidentDetail(idx){
       <div class="incident-detail-label" style="margin-bottom:8px;">✅ Action Taken</div>
       <p>${i.actionTaken||'No action recorded.'}</p>
     </div>
-    ${i.photoLink?`<div style="text-align:center;margin-top:8px;">
-      <a href="${i.photoLink}" target="_blank" style="display:inline-block;background:var(--teal-dark);color:white;padding:12px 28px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;text-decoration:none;">📷 View Photo on Google Drive</a>
-    </div>`:`<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">📷 No photo attached</div>`}`;
-  document.getElementById('incidentDetailModal').classList.add('open');
+    ${i.photoLink?`<div style="margin-top:8px;">
+      <div class="incident-detail-label" style="margin-bottom:10px;">📷 Photo Evidence</div>
+      <div style="text-align:center;">
+        <img src="https://drive.google.com/thumbnail?id=${i.photoLink.match(/\/d\/(.+?)\/view/)?.[1]}&sz=w600"
+          style="max-width:100%;border-radius:12px;box-shadow:0 4px 16px rgba(10,79,110,0.15);cursor:pointer;"
+          onclick="window.open('${i.photoLink}','_blank')"
+          onerror="this.style.display='none';document.getElementById('photoFallback_${idx}').style.display='block'"
+        />
+        <div id="photoFallback_${idx}" style="display:none;margin-top:8px;">
+          <a href="${i.photoLink}" target="_blank" style="display:inline-block;background:var(--teal-dark);color:white;padding:12px 28px;border-radius:12px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;text-decoration:none;">📷 Open Photo in Google Drive</a>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">Click photo to open full size</p>
+      </div>
+    </div>`:`<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">📷 No photo attached</div>`}`;  document.getElementById('incidentDetailModal').classList.add('open');
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
