@@ -717,6 +717,24 @@ async function renderDashboard() {
   renderWorkerMgmt();
 }
 
+function formatDisplayDate(val) {
+  if (!val) return '—';
+  try {
+    const d = new Date(val);
+    if (isNaN(d)) return String(val);
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' });
+  } catch(e) { return String(val); }
+}
+
+function formatDisplayTime(val) {
+  if (!val) return '';
+  try {
+    const d = new Date(val);
+    if (isNaN(d)) return String(val);
+    return d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return String(val); }
+}
+
 async function renderTable() {
   // Show loading
   document.getElementById('recordsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading records...</td></tr>';
@@ -751,7 +769,7 @@ async function renderTable() {
 
   tbody.innerHTML = filtered.map(r => `
     <tr>
-      <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${r.date}</span><br><span style="font-size:10px;color:var(--text-muted)">${r.time || ''}</span></td>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${formatDisplayDate(r.date)}</span><br><span style="font-size:10px;color:var(--text-muted)">${formatDisplayTime(r.time)}</span></td>
       <td style="font-weight:600">${r.supervisor}</td>
       <td style="font-size:12px">${r.zone}</td>
       <td style="font-weight:600">${r.workerName}</td>
