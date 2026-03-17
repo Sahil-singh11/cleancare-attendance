@@ -904,20 +904,22 @@ function previewPhoto(){
   }
 }
 
-// Compress image to max 800px wide and 0.7 quality JPEG
+// Compress image to max 600px wide and 0.5 quality JPEG
 function compressPhoto(file){
   return new Promise((resolve)=>{
     const reader=new FileReader();
     reader.onload=e=>{
       const img=new Image();
       img.onload=()=>{
-        const maxW=800;
+        const maxW=600;
         let w=img.width,h=img.height;
         if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
         const canvas=document.createElement('canvas');
         canvas.width=w;canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        resolve(canvas.toDataURL('image/jpeg',0.7));
+        const data=canvas.toDataURL('image/jpeg',0.5);
+        console.log('Compressed photo bytes approx:',Math.round(data.length*0.75/1024),'KB');
+        resolve(data);
       };
       img.src=e.target.result;
     };
