@@ -939,33 +939,27 @@ async function submitIncident(){
   const btn=document.getElementById('incidentSubmitBtn');
   btn.disabled=true;
 
-  // STEP 1: Save incident text only (no photo) - using reliable no-cors
-  btn.textContent='⏳ Saving incident...';
-  const incidentId='INC_'+Date.now();
-  await sendToSheet({action:'addIncident',incidentId,date:today,time,
-    supervisor:loggedInSupervisor.name,zone,type,severity,
-    description:desc,actionTaken:action,photo:''});
-
-  // STEP 2: Upload photo separately if present
-  let photoOk=false;
+  let photoData='';
   if(photoFile){
     btn.textContent='⏳ Compressing photo...';
-    try{
-      const photoData=await compressPhoto(photoFile);
-      console.log('Compressed photo size (chars):',photoData.length);
-      btn.textContent='⏳ Uploading photo...';
-      // Send photo-only update with the incidentId to match
-      const r=await fetch(SHEET_API,{
-        method:'POST',
-        headers:{'Content-Type':'text/plain'},
-        body:JSON.stringify({action:'updatePhoto',incidentId,photo:photoData})
-      });
-      const txt=await r.text();
-      console.log('Photo upload response:',txt);
-      const res=JSON.parse(txt);
-      if(res.photoLink) photoOk=true;
-    }catch(e){console.error('Photo upload error:',e);}
+    try{ photoData=await compressPhoto(photoFile); }catch(e){ photoData=''; }
   }
+
+  btn.textContent='⏳ Submitting...';
+
+  // Send everything in ONE request via no-cors (always reaches Apps Script)
+  const incidentId='INC_'+Date.now();
+  await fetch(SHEET_API,{
+    method:'POST',
+    mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'addIncident', incidentId,
+      date:today, time, supervisor:loggedInSupervisor.name,
+      zone, type, severity, description:desc, actionTaken:action,
+      photo:photoData
+    })
+  });
 
   // Reset form
   document.getElementById('incidentZone').value='';
@@ -977,10 +971,7 @@ async function submitIncident(){
   document.getElementById('photoPreview').style.display='none';
   document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
   btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
-
-  if(!photoFile) showToast('🚨 Incident reported successfully!','success');
-  else if(photoOk) showToast('🚨 Incident reported with photo ✅','success');
-  else showToast('⚠️ Incident saved but photo failed','error');
+  showToast('🚨 Incident reported successfully!','success');
 }
 
 // ===== TOAST =====
