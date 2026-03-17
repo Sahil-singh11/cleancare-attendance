@@ -936,61 +936,51 @@ async function submitIncident(){
   const time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   const action=document.getElementById('incidentAction').value.trim();
   const photoFile=document.getElementById('incidentPhoto').files[0];
-
   const btn=document.getElementById('incidentSubmitBtn');
   btn.disabled=true;
 
-  // Step 1: compress photo if present
-  let photoData='';
+  // STEP 1: Save incident text only (no photo) - using reliable no-cors
+  btn.textContent='⏳ Saving incident...';
+  const incidentId='INC_'+Date.now();
+  await sendToSheet({action:'addIncident',incidentId,date:today,time,
+    supervisor:loggedInSupervisor.name,zone,type,severity,
+    description:desc,actionTaken:action,photo:''});
+
+  // STEP 2: Upload photo separately if present
+  let photoOk=false;
   if(photoFile){
     btn.textContent='⏳ Compressing photo...';
-    try{ photoData=await compressPhoto(photoFile); }catch(e){ photoData=''; }
+    try{
+      const photoData=await compressPhoto(photoFile);
+      console.log('Compressed photo size (chars):',photoData.length);
+      btn.textContent='⏳ Uploading photo...';
+      // Send photo-only update with the incidentId to match
+      const r=await fetch(SHEET_API,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain'},
+        body:JSON.stringify({action:'updatePhoto',incidentId,photo:photoData})
+      });
+      const txt=await r.text();
+      console.log('Photo upload response:',txt);
+      const res=JSON.parse(txt);
+      if(res.photoLink) photoOk=true;
+    }catch(e){console.error('Photo upload error:',e);}
   }
 
-  // Step 2: send everything together via form-encoded POST (avoids CORS body issues)
-  btn.textContent='⏳ Saving incident...';
-  try{
-    const formData=new FormData();
-    formData.append('action','addIncident');
-    formData.append('date',today);
-    formData.append('time',time);
-    formData.append('supervisor',loggedInSupervisor.name);
-    formData.append('zone',zone);
-    formData.append('type',type);
-    formData.append('severity',severity);
-    formData.append('description',desc);
-    formData.append('actionTaken',action);
-    if(photoData) formData.append('photo',photoData);
+  // Reset form
+  document.getElementById('incidentZone').value='';
+  document.getElementById('incidentType').value='';
+  document.getElementById('incidentSeverity').value='';
+  document.getElementById('incidentDesc').value='';
+  document.getElementById('incidentAction').value='';
+  document.getElementById('incidentPhoto').value='';
+  document.getElementById('photoPreview').style.display='none';
+  document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
+  btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
 
-    btn.textContent= photoData ? '⏳ Uploading photo...' : '⏳ Saving...';
-    const res=await fetch(SHEET_API,{method:'POST',body:formData});
-    const text=await res.text();
-    let result={success:false};
-    try{result=JSON.parse(text);}catch(e){}
-
-    // Reset form
-    document.getElementById('incidentZone').value='';
-    document.getElementById('incidentType').value='';
-    document.getElementById('incidentSeverity').value='';
-    document.getElementById('incidentDesc').value='';
-    document.getElementById('incidentAction').value='';
-    document.getElementById('incidentPhoto').value='';
-    document.getElementById('photoPreview').style.display='none';
-    document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
-    btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
-
-    if(result.photoLink){
-      showToast('🚨 Incident reported with photo ✅','success');
-    } else if(photoData){
-      showToast('⚠️ Incident saved but photo failed','error');
-    } else {
-      showToast('🚨 Incident reported successfully!','success');
-    }
-  }catch(e){
-    btn.textContent='🚨 Submit Incident Report';btn.disabled=false;
-    showToast('❌ Submission failed. Please try again.','error');
-    console.error(e);
-  }
+  if(!photoFile) showToast('🚨 Incident reported successfully!','success');
+  else if(photoOk) showToast('🚨 Incident reported with photo ✅','success');
+  else showToast('⚠️ Incident saved but photo failed','error');
 }
 
 // ===== TOAST =====
