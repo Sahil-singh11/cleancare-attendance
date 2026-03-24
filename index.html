@@ -665,8 +665,35 @@ const DEFAULT_SUPERVISORS = [
 // ===== LOCAL STORAGE =====
 function saveWorkers(w){try{localStorage.setItem('cc_workers',JSON.stringify(w));}catch(e){window._workers=w;}}
 function loadWorkers(){try{const r=localStorage.getItem('cc_workers');return r?JSON.parse(r):DEFAULT_WORKERS;}catch(e){return window._workers||DEFAULT_WORKERS;}}
-function saveSupervisors(s){try{localStorage.setItem('cc_supervisors',JSON.stringify(s));}catch(e){window._sups=s;}}
-function loadSupervisors(){try{const r=localStorage.getItem('cc_supervisors');return r?JSON.parse(r):DEFAULT_SUPERVISORS;}catch(e){return window._sups||DEFAULT_SUPERVISORS;}}
+
+// Supervisors are stored in Google Sheets so all devices share the same list
+let _supervisorCache = null;
+
+async function loadSupervisorsFromSheet(){
+  try{
+    const res=await fetch(SHEET_API+'?action=getSupervisors');
+    const data=await res.json();
+    if(data.success && data.supervisors && data.supervisors.length>0){
+      _supervisorCache=data.supervisors;
+      return data.supervisors;
+    }
+  }catch(e){console.error('Failed to load supervisors:',e);}
+  return _supervisorCache||DEFAULT_SUPERVISORS;
+}
+
+function loadSupervisors(){
+  return _supervisorCache||DEFAULT_SUPERVISORS;
+}
+
+async function saveSupervisorToSheet(sup){
+  await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'addSupervisor',name:sup.name,zone:sup.zone,password:sup.password})});
+}
+
+async function deleteSupervisorFromSheet(name){
+  await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'deleteSupervisor',name:name})});
+}
 
 // ===== GOOGLE SHEETS API =====
 async function sendToSheet(record){
@@ -708,9 +735,10 @@ let exceptionCount=0;
 let calYear=new Date().getFullYear();
 let calMonth=new Date().getMonth();
 
-function init(){
+async function init(){
   currentWorkers=loadWorkers();
-  currentSupervisors=loadSupervisors();
+  // Load supervisors from Google Sheets so all devices are in sync
+  currentSupervisors=await loadSupervisorsFromSheet();
   const today=new Date();
   const dateStr=today.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   document.getElementById('todayDate').textContent=dateStr;
@@ -1288,15 +1316,17 @@ function renderSupMgmt(){
   document.getElementById('supMgmtBody').innerHTML=sups.map((s,i)=>`<tr><td style="color:var(--text-muted);font-size:12px">${i+1}</td><td style="font-weight:600">${s.name}</td><td><span class="sup-badge">${s.zone||'—'}</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted)">${s.password}</td><td><button class="del-btn" onclick="deleteSupervisor(${i})">✕</button></td></tr>`).join('');
 }
 
-function addSupervisor(){
+async function addSupervisor(){
   const name=document.getElementById('newSupName').value.trim();
   const zone=document.getElementById('newSupZone').value;
   const pass=document.getElementById('newSupPass').value.trim();
   if(!name||!zone||!pass){alert('Please fill in all supervisor fields.');return;}
   const sups=loadSupervisors();
   if(sups.find(s=>s.name===name)){alert('A supervisor with this name already exists.');return;}
-  sups.push({name,zone,password:pass});
-  saveSupervisors(sups);currentSupervisors=sups;
+  const newSup={name,zone,password:pass};
+  await saveSupervisorToSheet(newSup);
+  _supervisorCache=[...sups,newSup];
+  currentSupervisors=_supervisorCache;
   document.getElementById('newSupName').value='';
   document.getElementById('newSupZone').value='';
   document.getElementById('newSupPass').value='';
@@ -1304,10 +1334,14 @@ function addSupervisor(){
   showToast('✅ Supervisor added!','success');
 }
 
-function deleteSupervisor(i){
+async function deleteSupervisor(i){
   if(!confirm('Remove this supervisor?'))return;
-  const sups=loadSupervisors();sups.splice(i,1);
-  saveSupervisors(sups);currentSupervisors=sups;
+  const sups=loadSupervisors();
+  const name=sups[i].name;
+  await deleteSupervisorFromSheet(name);
+  sups.splice(i,1);
+  _supervisorCache=sups;
+  currentSupervisors=sups;
   renderSupMgmt();populateSupLoginList();
 }
 
