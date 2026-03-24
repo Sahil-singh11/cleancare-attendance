@@ -737,7 +737,9 @@ let calMonth=new Date().getMonth();
 
 async function init(){
   currentWorkers=loadWorkers();
-  // Load supervisors from Google Sheets so all devices are in sync
+  // Show loading in supervisor dropdown while fetching from sheet
+  const sel=document.getElementById('supLoginName');
+  if(sel) sel.innerHTML='<option value="">⏳ Loading supervisors...</option>';
   currentSupervisors=await loadSupervisorsFromSheet();
   const today=new Date();
   const dateStr=today.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
