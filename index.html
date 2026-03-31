@@ -166,7 +166,31 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
 .b-comment{background:#f8fafc;color:var(--comment);}
 .b-low{background:#ecfdf5;color:var(--success);}.b-medium{background:#fffbeb;color:var(--warning);}
 .b-high{background:#fef2f2;color:var(--danger);}
-.notes-cell{max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-muted);font-size:12px;}
+.leave-mgmt-wrap{padding:4px 0;}
+.leave-form-card{background:white;border-radius:18px;padding:22px;border:1.5px solid var(--border);box-shadow:var(--shadow);margin-bottom:16px;}
+.leave-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+.leave-balance-card{background:white;border-radius:16px;padding:18px 20px;border:1.5px solid var(--border);box-shadow:0 2px 12px rgba(10,79,110,0.07);margin-bottom:12px;cursor:pointer;transition:box-shadow 0.2s;}
+.leave-balance-card:hover{box-shadow:0 4px 20px rgba(10,79,110,0.15);}
+.leave-worker-name{font-size:15px;font-weight:700;color:var(--teal-dark);margin-bottom:4px;}
+.leave-worker-zone{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;}
+.leave-bar-wrap{margin:12px 0 8px;}
+.leave-bar-bg{height:10px;background:var(--off-white);border-radius:8px;overflow:hidden;}
+.leave-bar-fill{height:100%;border-radius:8px;transition:width 0.5s ease;}
+.leave-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.leave-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+.leave-pill.annual{background:#e0f2fe;color:#0369a1;}
+.leave-pill.sick{background:#fff7ed;color:#c2410c;}
+.leave-pill.nvp{background:#ecfdf5;color:#065f46;}
+.leave-pill.half{background:#f5f3ff;color:#6d28d9;}
+.leave-pill.maternity{background:#fdf2f8;color:#9d174d;}
+.leave-pill.unpaid{background:#f8fafc;color:#475569;}
+.leave-pill.other{background:#fefce8;color:#854d0e;}
+.leave-days-left{font-size:22px;font-weight:800;color:var(--teal-dark);}
+.leave-days-label{font-size:11px;color:var(--text-muted);font-weight:600;}
+.leave-entry-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.leave-entry-row:last-child{border-bottom:none;}
+.leave-del-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px;}
+.leave-del-btn:hover{background:#fef2f2;}
 .empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);}
 .empty-state .emoji{font-size:40px;margin-bottom:12px;}
 .clickable-row{cursor:pointer;}
@@ -269,6 +293,7 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
     <div class="nav-tabs">
       <button class="nav-tab active" id="tabSup" onclick="showMainPage('supervisor',this)">📋 Supervisor</button>
       <button class="nav-tab" id="tabInc" onclick="showMainPage('incident',this)" style="display:none">🚨 Incident</button>
+      <button class="nav-tab" id="tabLeave" onclick="showMainPage('leave-sup',this)" style="display:none">🏖 Leave</button>
       <button class="nav-tab" id="tabAdmin" onclick="showMainPage('admin',this)">🔐 Admin</button>
     </div>
   </div>
@@ -374,6 +399,41 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
   </div>
 </div>
 
+<!-- ===== SUPERVISOR LEAVE PAGE ===== -->
+<div id="page-leave-sup" class="page">
+  <div class="form-container" style="max-width:680px;">
+    <div class="form-header">
+      <div class="date-badge" id="leaveDateBadge"></div>
+      <h1>🏖 Add Leave</h1>
+      <p>Record leave for any worker</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Worker Leave Entry</div>
+      <label>Worker</label>
+      <select id="leaveWorkerSup" style="width:100%;margin-bottom:14px;"></select>
+      <label>Leave Type</label>
+      <select id="leaveTypeSup" style="width:100%;margin-bottom:14px;">
+        <option value="">-- Select Type --</option>
+        <option>Annual Leave</option>
+        <option>Sick Leave</option>
+        <option>Local Leave (NVP)</option>
+        <option>Half Day</option>
+        <option>Maternity Leave</option>
+        <option>Unpaid Leave</option>
+        <option>Other</option>
+      </select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label>From Date</label><input type="date" id="leaveFromSup" style="width:100%;" /></div>
+        <div><label>To Date</label><input type="date" id="leaveToSup" style="width:100%;" /></div>
+      </div>
+      <label style="margin-top:14px;">Notes (optional)</label>
+      <input type="text" id="leaveNotesSup" placeholder="e.g. Medical certificate submitted..." />
+      <button class="submit-btn" style="margin-top:8px;" onclick="submitLeaveEntrySup()">+ Add Leave Entry</button>
+    </div>
+    <button class="submit-btn" style="margin-top:8px;background:linear-gradient(135deg,var(--comment),#475569);" onclick="supervisorLogout()">Logout</button>
+  </div>
+</div>
+
 <!-- ===== ADMIN PAGE ===== -->
 <div id="page-admin" class="page">
   <div id="adminLogin" class="login-container">
@@ -406,7 +466,8 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showAdminTab('attendance',this)">📋 Attendance</button>
         <button class="admin-tab" onclick="showAdminTab('incidents',this)">🚨 Incidents</button>
-        <button class="admin-tab" onclick="showAdminTab('calendar',this)">📅 Leave Calendar</button>
+        <button class="admin-tab" onclick="showAdminTab('leave',this)">🏖 Leave</button>
+        <button class="admin-tab" onclick="showAdminTab('calendar',this)">📅 Calendar</button>
         <button class="admin-tab" onclick="showAdminTab('report',this)">📄 Monthly Report</button>
         <button class="admin-tab" onclick="showAdminTab('supervisors',this)">👷 Supervisors</button>
         <button class="admin-tab" onclick="showAdminTab('workers',this)">👥 Workers</button>
@@ -558,6 +619,67 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
         </div>
       </div>
 
+      <!-- LEAVE MANAGEMENT TAB -->
+      <div class="admin-section" id="section-leave">
+        <div class="leave-mgmt-wrap">
+
+          <!-- Add Leave Form -->
+          <div class="leave-form-card">
+            <div class="card-title">➕ Add Leave Entry</div>
+            <div class="leave-form-grid">
+              <div>
+                <label>Worker</label>
+                <select id="leaveWorker" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;">
+                  <option value="">-- Select Worker --</option>
+                </select>
+              </div>
+              <div>
+                <label>Leave Type</label>
+                <select id="leaveType" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;">
+                  <option value="">-- Select Type --</option>
+                  <option>Annual Leave</option>
+                  <option>Sick Leave</option>
+                  <option>Local Leave (NVP)</option>
+                  <option>Half Day</option>
+                  <option>Maternity Leave</option>
+                  <option>Unpaid Leave</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label>From Date</label>
+                <input type="date" id="leaveFrom" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;" />
+              </div>
+              <div>
+                <label>To Date</label>
+                <input type="date" id="leaveTo" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;" />
+              </div>
+              <div style="grid-column:1/-1">
+                <label>Notes (optional)</label>
+                <input type="text" id="leaveNotes" placeholder="e.g. Medical certificate submitted..." style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;" />
+              </div>
+            </div>
+            <button onclick="submitLeaveEntry()" style="margin-top:14px;background:var(--teal-dark);color:white;border:none;padding:12px 28px;border-radius:12px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">+ Add Leave</button>
+          </div>
+
+          <!-- Filter & Search -->
+          <div style="display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="leaveSearch" placeholder="🔍 Search worker..." oninput="renderLeaveBalances()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;width:220px;" />
+            <select id="leaveZoneFilter" onchange="renderLeaveBalances()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;">
+              <option value="">All Zones</option>
+              <option>Zone 1</option><option>Zone 2</option><option>Zone 3</option>
+              <option>Zone 4 - WK Phoenix</option><option>Support Team</option>
+            </select>
+            <select id="leaveYearFilter" onchange="renderLeaveBalances()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;">
+            </select>
+            <span id="leaveTotal" style="margin-left:auto;font-size:13px;color:var(--text-muted);font-weight:600;"></span>
+          </div>
+
+          <!-- Worker Leave Balances -->
+          <div id="leaveBalancesContainer"></div>
+        </div>
+      </div>
+
       <!-- WORKERS TAB -->
       <div class="admin-section" id="section-workers">
         <div class="worker-mgmt-card">
@@ -603,6 +725,17 @@ td{padding:11px 14px;color:var(--text);vertical-align:top;}
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- LEAVE DETAIL MODAL -->
+<div class="modal-overlay" id="leaveDetailModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <h2 id="leaveDetailTitle">Leave Details</h2>
+      <button class="modal-close" onclick="closeModal('leaveDetailModal')">✕</button>
+    </div>
+    <div id="leaveDetailContent"></div>
   </div>
 </div>
 
@@ -761,6 +894,48 @@ function showMainPage(page,btn){
   document.getElementById('page-'+page).classList.add('active');
   btn.classList.add('active');
   if(page==='admin')renderDashboard();
+  if(page==='leave-sup'){
+    populateLeaveWorkerDropdownSup();
+    const today=new Date();
+    const d=today.toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    document.getElementById('leaveDateBadge').textContent=d;
+  }
+}
+
+function populateLeaveWorkerDropdownSup(){
+  const workers=loadWorkers();
+  const sel=document.getElementById('leaveWorkerSup');
+  sel.innerHTML='<option value="">-- Select Worker --</option>';
+  workers.sort((a,b)=>a.zone.localeCompare(b.zone)||a.name.localeCompare(b.name));
+  let lastZone='';
+  workers.forEach(w=>{
+    if(w.zone!==lastZone){
+      const og=document.createElement('optgroup');og.label=w.zone;sel.appendChild(og);lastZone=w.zone;
+    }
+    const opt=document.createElement('option');
+    opt.value=w.name+'|||'+w.zone;opt.textContent=w.name;sel.appendChild(opt);
+  });
+}
+
+async function submitLeaveEntrySup(){
+  const workerVal=document.getElementById('leaveWorkerSup').value;
+  const type=document.getElementById('leaveTypeSup').value;
+  const from=document.getElementById('leaveFromSup').value;
+  const to=document.getElementById('leaveToSup').value||from;
+  const notes=document.getElementById('leaveNotesSup').value.trim();
+  if(!workerVal||!type||!from){alert('Please select worker, leave type and from date.');return;}
+  const [workerName,workerZone]=workerVal.split('|||');
+  const days=getDaysBetween(from,to);
+  const leaveId='LV_'+Date.now();
+  await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'addLeave',leaveId,workerName,workerZone,leaveType:type,
+      fromDate:from,toDate:to,days,notes,addedBy:loggedInSupervisor?loggedInSupervisor.name:'Supervisor'})});
+  document.getElementById('leaveWorkerSup').value='';
+  document.getElementById('leaveTypeSup').value='';
+  document.getElementById('leaveFromSup').value='';
+  document.getElementById('leaveToSup').value='';
+  document.getElementById('leaveNotesSup').value='';
+  showToast('✅ Leave entry added!','success');
 }
 
 // ===== SUPERVISOR LOGIN =====
@@ -798,6 +973,7 @@ function showSupDashboard(){
   document.getElementById('supWelcome').textContent='Welcome, '+loggedInSupervisor.name+' 👋';
   document.getElementById('navUser').textContent=loggedInSupervisor.name;
   document.getElementById('tabInc').style.display='block';
+  document.getElementById('tabLeave').style.display='block';
 }
 
 function supervisorLogout(){
@@ -807,6 +983,7 @@ function supervisorLogout(){
   document.getElementById('supMainPage').style.display='none';
   document.getElementById('navUser').textContent='';
   document.getElementById('tabInc').style.display='none';
+  document.getElementById('tabLeave').style.display='none';
   document.getElementById('exceptionsList').innerHTML='';
   document.getElementById('generalNotes').value='';
   exceptionCount=0;
@@ -1025,7 +1202,200 @@ async function submitIncident(){
   showToast('🚨 Incident reported successfully!','success');
 }
 
-// ===== TOAST =====
+// ===== LEAVE MANAGEMENT =====
+const ANNUAL_LEAVE_DAYS = 21; // Default annual leave entitlement
+
+async function fetchLeaveRecords(){
+  try{
+    const res=await fetch(SHEET_API+'?action=getLeave');
+    const data=await res.json();
+    return data.success?(data.leave||[]):[];
+  }catch(e){return[];}
+}
+
+function populateLeaveWorkerDropdown(){
+  const workers=loadWorkers();
+  const sel=document.getElementById('leaveWorker');
+  sel.innerHTML='<option value="">-- Select Worker --</option>';
+  workers.sort((a,b)=>a.zone.localeCompare(b.zone)||a.name.localeCompare(b.name));
+  let lastZone='';
+  workers.forEach(w=>{
+    if(w.zone!==lastZone){
+      const og=document.createElement('optgroup');
+      og.label=w.zone;
+      sel.appendChild(og);
+      lastZone=w.zone;
+    }
+    const opt=document.createElement('option');
+    opt.value=w.name+'|||'+w.zone;
+    opt.textContent=w.name;
+    sel.appendChild(opt);
+  });
+}
+
+function getDaysBetween(from,to){
+  const d1=new Date(from),d2=new Date(to);
+  return Math.max(1,Math.round((d2-d1)/(1000*60*60*24))+1);
+}
+
+async function submitLeaveEntry(){
+  const workerVal=document.getElementById('leaveWorker').value;
+  const type=document.getElementById('leaveType').value;
+  const from=document.getElementById('leaveFrom').value;
+  const to=document.getElementById('leaveTo').value||from;
+  const notes=document.getElementById('leaveNotes').value.trim();
+  if(!workerVal||!type||!from){alert('Please select worker, leave type and from date.');return;}
+  const [workerName,workerZone]=workerVal.split('|||');
+  const days=getDaysBetween(from,to);
+  const leaveId='LV_'+Date.now();
+  await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'addLeave',leaveId,workerName,workerZone,leaveType:type,
+      fromDate:from,toDate:to,days,notes,addedBy:loggedInSupervisor?loggedInSupervisor.name:'Admin'})});
+  document.getElementById('leaveWorker').value='';
+  document.getElementById('leaveType').value='';
+  document.getElementById('leaveFrom').value='';
+  document.getElementById('leaveTo').value='';
+  document.getElementById('leaveNotes').value='';
+  showToast('✅ Leave entry added!','success');
+  setTimeout(()=>renderLeaveBalances(),1500);
+}
+
+async function renderLeaveBalances(){
+  const container=document.getElementById('leaveBalancesContainer');
+  if(!container)return;
+  container.innerHTML='<div style="text-align:center;padding:32px;color:var(--text-muted)">⏳ Loading leave data...</div>';
+  const records=await fetchLeaveRecords();
+  const search=(document.getElementById('leaveSearch')||{}).value||'';
+  const zoneFilter=(document.getElementById('leaveZoneFilter')||{}).value||'';
+  const yearFilter=(document.getElementById('leaveYearFilter')||{}).value||new Date().getFullYear().toString();
+
+  // Populate year filter
+  const years=[...new Set(records.map(r=>r.fromDate?r.fromDate.substring(0,4):''))].filter(Boolean).sort().reverse();
+  if(!years.includes(new Date().getFullYear().toString())) years.unshift(new Date().getFullYear().toString());
+  const yearSel=document.getElementById('leaveYearFilter');
+  if(yearSel&&yearSel.options.length<=1){
+    years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;yearSel.appendChild(o);});
+    yearSel.value=yearFilter;
+  }
+
+  // Filter records by year
+  const yearRecords=records.filter(r=>r.fromDate&&r.fromDate.startsWith(yearFilter));
+
+  // Group by worker
+  const workers=loadWorkers();
+  let filtered=workers.filter(w=>
+    (!zoneFilter||w.zone===zoneFilter)&&
+    (!search||w.name.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  const typeColors={
+    'Annual Leave':'annual','Sick Leave':'sick','Local Leave (NVP)':'nvp',
+    'Half Day':'half','Maternity Leave':'maternity','Unpaid Leave':'unpaid','Other':'other'
+  };
+
+  if(!filtered.length){container.innerHTML='<div style="text-align:center;padding:32px;color:var(--text-muted)">No workers found.</div>';return;}
+
+  // Only show workers with leave OR all if no filter
+  let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;">';
+  filtered.forEach(w=>{
+    const wLeave=yearRecords.filter(r=>r.workerName===w.name);
+    const totalUsed=wLeave.reduce((s,r)=>s+Number(r.days||1),0);
+    const annualUsed=wLeave.filter(r=>r.leaveType==='Annual Leave').reduce((s,r)=>s+Number(r.days||1),0);
+    const sickUsed=wLeave.filter(r=>r.leaveType==='Sick Leave').reduce((s,r)=>s+Number(r.days||1),0);
+    const nvpUsed=wLeave.filter(r=>r.leaveType==='Local Leave (NVP)').reduce((s,r)=>s+Number(r.days||1),0);
+    const remaining=Math.max(0,ANNUAL_LEAVE_DAYS-annualUsed);
+    const pct=Math.min(100,Math.round((annualUsed/ANNUAL_LEAVE_DAYS)*100));
+    const barColor=pct>80?'var(--danger)':pct>50?'var(--warning)':'var(--success)';
+
+    const pills=Object.entries(
+      wLeave.reduce((acc,r)=>{acc[r.leaveType]=(acc[r.leaveType]||0)+Number(r.days||1);return acc;},{})
+    ).map(([type,days])=>`<span class="leave-pill ${typeColors[type]||'other'}">${type}: ${days}d</span>`).join('');
+
+    html+=`<div class="leave-balance-card" onclick="showLeaveDetail('${w.name.replace(/'/g,"\\'")}','${w.zone.replace(/'/g,"\\'")}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="leave-worker-name">${w.name}</div>
+          <div class="leave-worker-zone">${w.zone}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="leave-days-left">${remaining}</div>
+          <div class="leave-days-label">days left</div>
+        </div>
+      </div>
+      <div class="leave-bar-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:4px;">
+          <span>Annual Leave Used: ${annualUsed}/${ANNUAL_LEAVE_DAYS} days</span>
+          <span>${pct}%</span>
+        </div>
+        <div class="leave-bar-bg"><div class="leave-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+      </div>
+      ${pills?`<div class="leave-pills">${pills}</div>`:'<div style="font-size:12px;color:var(--text-muted);margin-top:8px;">No leave recorded for ${yearFilter}</div>'}
+      <div style="font-size:11px;color:var(--teal);margin-top:8px;font-weight:600;">👁 Click to view details</div>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('leaveTotal').textContent=`${filtered.length} workers`;
+  container.innerHTML=html;
+}
+
+async function showLeaveDetail(workerName,workerZone){
+  const yearFilter=(document.getElementById('leaveYearFilter')||{}).value||new Date().getFullYear().toString();
+  document.getElementById('leaveDetailTitle').textContent='🏖 '+workerName;
+  const content=document.getElementById('leaveDetailContent');
+  content.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-muted)">⏳ Loading...</div>';
+  document.getElementById('leaveDetailModal').classList.add('open');
+  const records=await fetchLeaveRecords();
+  const wLeave=records.filter(r=>r.workerName===workerName&&r.fromDate&&r.fromDate.startsWith(yearFilter));
+  const totalUsed=wLeave.reduce((s,r)=>s+Number(r.days||1),0);
+  const annualUsed=wLeave.filter(r=>r.leaveType==='Annual Leave').reduce((s,r)=>s+Number(r.days||1),0);
+  const remaining=Math.max(0,ANNUAL_LEAVE_DAYS-annualUsed);
+
+  // Summary grid
+  const types=['Annual Leave','Sick Leave','Local Leave (NVP)','Half Day','Maternity Leave','Unpaid Leave','Other'];
+  const typeColors={
+    'Annual Leave':'annual','Sick Leave':'sick','Local Leave (NVP)':'nvp',
+    'Half Day':'half','Maternity Leave':'maternity','Unpaid Leave':'unpaid','Other':'other'
+  };
+  const summaryHtml=types.map(t=>{
+    const d=wLeave.filter(r=>r.leaveType===t).reduce((s,r)=>s+Number(r.days||1),0);
+    if(!d)return'';
+    return`<div style="background:var(--off-white);border-radius:10px;padding:10px 14px;text-align:center;">
+      <div style="font-size:20px;font-weight:800;color:var(--teal-dark);">${d}</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600;">${t}</div>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  const entriesHtml=wLeave.length?wLeave.sort((a,b)=>b.fromDate.localeCompare(a.fromDate)).map(r=>`
+    <div class="leave-entry-row">
+      <div>
+        <span class="leave-pill ${typeColors[r.leaveType]||'other'}" style="margin-right:8px;">${r.leaveType}</span>
+        <span style="font-size:13px;font-weight:600;">${r.fromDate}${r.toDate&&r.toDate!==r.fromDate?' → '+r.toDate:''}</span>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${r.days} day${r.days>1?'s':''}</span>
+        ${r.notes?`<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">📝 ${r.notes}</div>`:''}
+        <div style="font-size:10px;color:var(--text-muted);">Added by: ${r.addedBy||'—'}</div>
+      </div>
+      <button class="leave-del-btn" onclick="deleteLeaveEntry('${r.leaveId}','${workerName.replace(/'/g,"\\'")}','${workerZone.replace(/'/g,"\\'")}')">✕</button>
+    </div>`).join('')
+    :'<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No leave entries for '+yearFilter+'</div>';
+
+  content.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:13px;color:var(--text-muted);">${workerZone} · ${yearFilter}</div>
+      <div style="text-align:right;"><span style="font-size:28px;font-weight:800;color:var(--teal-dark);">${remaining}</span> <span style="font-size:13px;color:var(--text-muted);">annual days remaining</span></div>
+    </div>
+    ${summaryHtml?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:18px;">${summaryHtml}</div>`:''}
+    <div style="font-weight:700;font-size:13px;color:var(--teal-dark);margin-bottom:8px;">Leave Entries</div>
+    <div>${entriesHtml}</div>`;
+}
+
+async function deleteLeaveEntry(leaveId,workerName,workerZone){
+  if(!confirm('Delete this leave entry?'))return;
+  await fetch(SHEET_API,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'deleteLeave',leaveId})});
+  showToast('✅ Leave entry deleted','success');
+  closeModal('leaveDetailModal');
+  setTimeout(()=>renderLeaveBalances(),1500);
+}
 function showToast(msg,type){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className='toast'+(type==='error'?' error':'');
@@ -1061,6 +1431,7 @@ function showAdminTab(tab,btn){
   if(tab==='supervisors')renderSupMgmt();
   if(tab==='workers')renderWorkerMgmt();
   if(tab==='incidents')renderIncidentsTable();
+  if(tab==='leave'){populateLeaveWorkerDropdown();renderLeaveBalances();}
 }
 
 // ===== RENDER DASHBOARD =====
